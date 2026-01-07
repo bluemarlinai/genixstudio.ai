@@ -34,9 +34,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onUpgrade, onNavigateAnnouncement
   }, []);
 
   return (
-    <div className="p-5 max-w-[90rem] mx-auto space-y-5 animate-in fade-in duration-500">
+    <div className="p-8 md:px-12 lg:px-16 space-y-6 animate-in fade-in duration-500 w-full overflow-x-hidden">
       {showBanner && (
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 flex items-center justify-between animate-in slide-in-from-top duration-500">
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between animate-in slide-in-from-top duration-500">
           <div className="flex items-center gap-3">
             <div className="bg-primary text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shadow-sm">
               NEW
@@ -54,26 +54,26 @@ const Dashboard: React.FC<DashboardProps> = ({ onUpgrade, onNavigateAnnouncement
 
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-xl font-black tracking-tight">数据概览</h1>
-          <p className="text-[11px] text-studio-sub mt-0.5">实时追踪您在各大平台的内容表现与互动数据。</p>
+          <h1 className="text-2xl font-black tracking-tight">数据概览</h1>
+          <p className="text-[11px] text-studio-sub mt-1">实时追踪您在各大平台的内容表现与互动数据。</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoading ? (
-          [1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-white rounded-xl animate-pulse border border-studio-border"></div>)
+          [1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-white rounded-2xl animate-pulse border border-studio-border"></div>)
         ) : (
           kpis.map((kpi, idx) => (
-            <div key={idx} className="bg-white p-4 rounded-xl border border-studio-border shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${kpi.color}`}>
-                  <span className="material-symbols-outlined text-[18px]">{kpi.icon}</span>
+            <div key={idx} className="bg-white p-6 rounded-2xl border border-studio-border shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${kpi.color}`}>
+                  <span className="material-symbols-outlined text-[20px]">{kpi.icon}</span>
                 </div>
-                <span className="text-xs font-bold text-studio-sub">{kpi.label}</span>
+                <span className="text-xs font-bold text-studio-sub uppercase tracking-wider">{kpi.label}</span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-xl font-black">{kpi.value}</span>
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                <span className="text-2xl font-black">{kpi.value}</span>
+                <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${
                   kpi.trendType === 'up' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-500'
                 }`}>
                   {kpi.trend}
@@ -84,11 +84,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onUpgrade, onNavigateAnnouncement
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white p-6 rounded-2xl border border-studio-border shadow-sm">
-            <h3 className="text-sm font-black tracking-tight mb-4">流量趋势</h3>
-            <div className="h-[220px] w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white p-8 rounded-[32px] border border-studio-border shadow-sm">
+            <h3 className="text-sm font-black tracking-tight mb-6 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+              流量趋势
+            </h3>
+            <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -100,35 +103,44 @@ const Dashboard: React.FC<DashboardProps> = ({ onUpgrade, onNavigateAnnouncement
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#617589', fontSize: 10}} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontSize: '12px' }}
                   />
-                  <Area type="monotone" dataKey="value" stroke="#137fec" strokeWidth={2.5} fillOpacity={1} fill="url(#colorValue)" />
+                  <Area type="monotone" dataKey="value" stroke="#137fec" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
-        <div className="bg-slate-900 rounded-3xl p-6 text-white flex flex-col justify-between shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-[40px] rounded-full"></div>
+        <div className="bg-slate-900 rounded-[32px] p-8 text-white flex flex-col justify-between shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[50px] rounded-full translate-x-1/3 -translate-y-1/3"></div>
           <div>
-            <h3 className="text-base font-black mb-1">使用额度状态</h3>
-            <p className="text-[10px] text-slate-400 mb-6 font-medium">您本月的创作额度即将耗尽。</p>
-            <div className="space-y-4">
+            <h3 className="text-lg font-black mb-1">使用额度状态</h3>
+            <p className="text-[10px] text-slate-400 mb-8 font-medium">您本月的创作额度即将耗尽。</p>
+            <div className="space-y-6">
               <div>
-                <div className="flex justify-between text-[10px] font-bold mb-1.5 uppercase tracking-widest">
+                <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest">
                   <span>文章发布 (可用性)</span>
                   <span>Unlimited</span>
                 </div>
-                <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary w-full shadow-[0_0_8px_rgba(19,127,236,0.6)]"></div>
+                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary w-full shadow-[0_0_12px_rgba(19,127,236,0.8)]"></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-[10px] font-bold mb-2 uppercase tracking-widest text-slate-400">
+                  <span>AI 润色额度</span>
+                  <span>95%</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-500 w-[95%]"></div>
                 </div>
               </div>
             </div>
           </div>
           <button 
             onClick={onUpgrade}
-            className="w-full py-3 bg-primary text-white text-xs font-black rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-8"
+            className="w-full py-4 bg-primary text-white text-xs font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-10 uppercase tracking-widest"
           >
             升级至 PRO 解锁更多
           </button>
