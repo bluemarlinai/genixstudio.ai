@@ -6,9 +6,17 @@ interface SidebarProps {
   currentView: ViewState;
   onNavigate: (view: ViewState) => void;
   onLogout: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  currentView, 
+  onNavigate, 
+  onLogout, 
+  isCollapsed, 
+  onToggleCollapse 
+}) => {
   const menuItems = [
     { id: 'DASHBOARD', label: '我的主页', icon: 'home' },
     { id: 'ANNOUNCEMENTS', label: '公告中心', icon: 'campaign', hasBadge: true },
@@ -32,72 +40,118 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout }) 
   const isActive = (id: string) => currentView === id || (id === 'CONTENT_LIST' && currentView === 'EDITOR');
 
   return (
-    <aside className="w-64 bg-white border-r border-studio-border flex flex-col h-screen fixed left-0 top-0 z-40">
-      <div className="p-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10">
+    <aside 
+      className={`bg-white border-r border-studio-border flex flex-col h-screen fixed left-0 top-0 z-40 transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-16' : 'w-56'
+      }`}
+    >
+      {/* Top Header & Toggle */}
+      <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+        {!isCollapsed && (
+          <div className="flex items-center gap-2 overflow-hidden animate-in fade-in duration-300">
+            <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10 shrink-0">
+              <img src="assets/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
+            </div>
+            <h1 className="text-base font-black tracking-tight text-studio-dark whitespace-nowrap">Genix Studio</h1>
+          </div>
+        )}
+        {isCollapsed && (
+          <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10 shrink-0">
             <img src="assets/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-lg font-bold tracking-tight text-studio-dark">Genix Studio</h1>
-        </div>
+        )}
+        <button 
+          onClick={onToggleCollapse}
+          className={`absolute -right-3 top-10 w-6 h-6 bg-white border border-studio-border rounded-full flex items-center justify-center text-studio-sub hover:text-primary shadow-sm hover:shadow transition-all z-50 group ${isCollapsed ? 'rotate-180' : ''}`}
+          title={isCollapsed ? "展开菜单" : "折叠菜单"}
+        >
+          <span className="material-symbols-outlined text-[16px] font-bold">menu_open</span>
+        </button>
       </div>
 
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-        <div className="px-3 py-2 text-xs font-black text-gray-300 uppercase tracking-widest">创作者工具</div>
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto overflow-x-hidden pt-4">
+        <div className={`px-3 py-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest transition-opacity duration-200 ${isCollapsed ? 'opacity-0 h-0 p-0' : 'opacity-100'}`}>
+          创作者工具
+        </div>
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onNavigate(item.id as ViewState)}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all ${
+            className={`w-full flex items-center transition-all ${
               isActive(item.id)
                 ? 'bg-primary/10 text-primary font-bold shadow-sm' 
                 : 'text-studio-sub hover:bg-gray-50 hover:text-studio-dark'
-            }`}
+            } ${isCollapsed ? 'justify-center px-0 py-2.5 rounded-xl' : 'justify-between px-3 py-1.5 rounded-lg'}`}
+            title={isCollapsed ? item.label : undefined}
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="text-sm">{item.label}</span>
+            <div className={`flex items-center ${isCollapsed ? 'justify-center w-full' : 'gap-2.5'}`}>
+              <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
+              {!isCollapsed && <span className="text-xs whitespace-nowrap overflow-hidden">{item.label}</span>}
             </div>
-            {item.hasBadge && (
-              <span className="w-2 h-2 rounded-full bg-primary ring-4 ring-white"></span>
+            {!isCollapsed && item.hasBadge && (
+              <span className="w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-white"></span>
+            )}
+            {isCollapsed && item.hasBadge && (
+              <span className="absolute top-1 right-2 w-1.5 h-1.5 rounded-full bg-primary"></span>
             )}
           </button>
         ))}
 
-        <div className="pt-6 px-3 py-2 text-xs font-black text-red-300 uppercase tracking-widest">超级管理</div>
+        <div className={`pt-4 px-3 py-1.5 text-[10px] font-black text-red-300 uppercase tracking-widest transition-opacity duration-200 ${isCollapsed ? 'opacity-0 h-0 p-0' : 'opacity-100'}`}>
+          超级管理
+        </div>
         {adminItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onNavigate(item.id as ViewState)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+            className={`w-full flex items-center transition-all ${
               currentView === item.id
-                ? 'bg-slate-900 text-white font-bold shadow-lg' 
+                ? 'bg-slate-900 text-white font-bold shadow-md' 
                 : 'text-studio-sub hover:bg-gray-50 hover:text-studio-dark'
-            }`}
+            } ${isCollapsed ? 'justify-center px-0 py-2.5 rounded-xl' : 'gap-2.5 px-3 py-1.5 rounded-lg'}`}
+            title={isCollapsed ? item.label : undefined}
           >
-            <span className="material-symbols-outlined">{item.icon}</span>
-            <span className="text-sm">{item.label}</span>
+            <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
+            {!isCollapsed && <span className="text-xs whitespace-nowrap overflow-hidden">{item.label}</span>}
           </button>
         ))}
       </nav>
 
-      <div className="p-4 border-t border-studio-border">
-        <div className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 group">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('SETTINGS')}>
-            <div className="w-9 h-9 rounded-full bg-gray-200 bg-cover bg-center border border-studio-border" style={{backgroundImage: 'url("https://picsum.photos/seed/admin/100/100")'}}></div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold">超级管理员</span>
-              <span className="text-[10px] text-red-500 font-black uppercase tracking-tighter">Infrastructure</span>
-            </div>
+      {/* Footer Info */}
+      <div className="p-3 border-t border-studio-border shrink-0">
+        <div 
+          className={`flex items-center p-1.5 rounded-lg hover:bg-gray-50 group cursor-pointer ${isCollapsed ? 'justify-center' : 'justify-between'}`}
+          onClick={() => onNavigate('SETTINGS')}
+          title={isCollapsed ? "超级管理员" : undefined}
+        >
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2'}`}>
+            <div className="w-8 h-8 rounded-full bg-gray-200 bg-cover bg-center border border-studio-border shrink-0" style={{backgroundImage: 'url("https://picsum.photos/seed/admin/100/100")'}}></div>
+            {!isCollapsed && (
+              <div className="flex flex-col overflow-hidden animate-in fade-in duration-300">
+                <span className="text-[11px] font-bold whitespace-nowrap">超级管理员</span>
+                <span className="text-[9px] text-red-500 font-black uppercase tracking-tighter whitespace-nowrap">Infrastructure</span>
+              </div>
+            )}
           </div>
+          {!isCollapsed && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); onLogout(); }}
+              className="p-1 text-studio-sub hover:text-red-500 hover:bg-red-50 rounded-md transition-all shrink-0"
+              title="退出登录"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+            </button>
+          )}
+        </div>
+        {isCollapsed && (
           <button 
             onClick={onLogout}
-            className="p-1.5 text-studio-sub hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+            className="w-full flex justify-center py-2 mt-2 text-studio-sub hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
             title="退出登录"
           >
-            <span className="material-symbols-outlined text-[20px]">logout</span>
+            <span className="material-symbols-outlined text-[18px]">logout</span>
           </button>
-        </div>
+        )}
       </div>
     </aside>
   );

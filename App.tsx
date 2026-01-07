@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import TopNav from './components/TopNav';
@@ -20,6 +21,7 @@ import CalendarView from './views/CalendarView';
 import MediaLibrary from './views/MediaLibrary';
 import HelpPage from './views/HelpPage';
 import BlogView from './views/BlogView';
+import DemoView from './views/DemoView';
 
 // Admin Views
 import AdminDashboard from './views/admin/AdminDashboard';
@@ -36,6 +38,8 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>('LANDING');
   const [activePlatform, setActivePlatform] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  // Track sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const getPageTitle = () => {
     switch (currentView) {
@@ -91,28 +95,28 @@ const App: React.FC = () => {
   const getActions = () => {
     if (currentView.startsWith('ADMIN_')) {
       return (
-        <div className="flex items-center gap-2">
-           <button className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-bold transition-all">
-              导出 CSV 报告
+        <div className="flex items-center gap-1.5">
+           <button className="px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-[11px] font-bold transition-all">
+              导出 CSV
            </button>
            <button 
             onClick={() => setCurrentView('ADMIN_PLANS')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-lg ${currentView === 'ADMIN_PLANS' ? 'bg-primary text-white shadow-primary/20' : 'bg-slate-900 text-white hover:bg-black'}`}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all shadow-md ${currentView === 'ADMIN_PLANS' ? 'bg-primary text-white' : 'bg-slate-900 text-white hover:bg-black'}`}
            >
-              管理方案配置
+              方案配置
            </button>
         </div>
       );
     }
-    if (['EDITOR', 'PUBLISH', 'TEMPLATE_PREVIEW', 'UPGRADE', 'PAYMENT', 'ANNOUNCEMENTS', 'CALENDAR', 'MEDIA_LIBRARY', 'HELP', 'BLOG'].includes(currentView)) {
+    if (['EDITOR', 'PUBLISH', 'TEMPLATE_PREVIEW', 'UPGRADE', 'PAYMENT', 'ANNOUNCEMENTS', 'CALENDAR', 'MEDIA_LIBRARY', 'HELP', 'BLOG', 'DEMO_VIEW'].includes(currentView)) {
       return null;
     }
     return (
       <button 
         onClick={() => setCurrentView('EDITOR')}
-        className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-bold shadow-sm transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-bold shadow-sm transition-colors"
       >
-        <span className="material-symbols-outlined text-[18px]">add</span>
+        <span className="material-symbols-outlined text-[16px]">add</span>
         新建文章
       </button>
     );
@@ -129,12 +133,21 @@ const App: React.FC = () => {
   if (currentView === 'TEMPLATE_PREVIEW' && selectedTemplate) return <TemplatePreview template={selectedTemplate} onBack={() => setCurrentView('TEMPLATES')} onUse={handleApplyTemplate} />;
   if (currentView === 'PUBLISH') return <Publish onBack={() => setCurrentView('EDITOR')} onSuccess={() => setCurrentView('DASHBOARD')} />;
   if (currentView === 'BLOG') return <BlogView onBack={() => setCurrentView('LANDING')} />;
+  if (currentView === 'DEMO_VIEW') return <DemoView onClose={() => setCurrentView('LANDING')} onJoin={() => setCurrentView('LOGIN')} />;
 
   return (
-    <div className="min-h-screen flex bg-studio-bg">
-      <Sidebar currentView={currentView} onNavigate={setCurrentView} onLogout={handleLogout} />
+    <div className="min-h-screen flex bg-studio-bg overflow-x-hidden">
+      {/* Sidebar now receives required isCollapsed and onToggleCollapse props */}
+      <Sidebar 
+        currentView={currentView} 
+        onNavigate={setCurrentView} 
+        onLogout={handleLogout} 
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
       
-      <main className="flex-1 ml-64 flex flex-col min-h-screen">
+      {/* Main content adjusts its margin dynamically based on the sidebar state */}
+      <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-56'} flex flex-col min-h-screen`}>
         <TopNav 
           title={getPageTitle()} 
           subtitle={

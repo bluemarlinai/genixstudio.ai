@@ -31,6 +31,30 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
     }
   ];
 
+  const testimonials = [
+    {
+      name: '陈静仪',
+      role: '资深科技博主',
+      avatar: 'https://picsum.photos/seed/user1/100/100',
+      content: 'Genix Studio 彻底改变了我的写作流。以前排版和分发要花掉我半天时间，现在 AI 帮我处理了一切，我只需要专注于我的思考。',
+      platform: '微信公众号'
+    },
+    {
+      name: 'Liam Zhang',
+      role: '独立摄影师 / Vlogger',
+      avatar: 'https://picsum.photos/seed/user2/100/100',
+      content: '多模态素材融合功能非常惊艳。它能根据我的文字意境生成配图或短视频。这让我的文章看起来像专业杂志一样精美。',
+      platform: 'Medium'
+    },
+    {
+      name: '王小野',
+      role: '知识博主',
+      avatar: 'https://picsum.photos/seed/user3/100/100',
+      content: '全平台一键发布解决了我最大的痛点。数据看板也非常直观，我能清晰地看到自己的品牌影响力在稳步攀升。',
+      platform: '知乎'
+    }
+  ];
+
   return (
     <div className="bg-white min-h-screen font-sans selection:bg-primary/30 scroll-smooth">
       {/* Navigation */}
@@ -44,7 +68,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           </div>
           <div className="hidden md:flex items-center gap-10">
             <a href="#features" className="text-sm font-semibold text-studio-sub hover:text-primary transition-colors">核心功能</a>
-            <a href="#vision" className="text-sm font-semibold text-studio-sub hover:text-primary transition-colors">创作愿景</a>
+            <a href="#testimonials" className="text-sm font-semibold text-studio-sub hover:text-primary transition-colors">创作者评价</a>
             <button 
               onClick={() => onStart('BLOG')}
               className="text-sm font-semibold text-studio-sub hover:text-primary transition-colors"
@@ -88,7 +112,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             >
               免费加入
             </button>
-            <button className="w-full sm:w-auto px-10 py-4 bg-white border border-studio-border text-lg font-bold rounded-2xl hover:bg-studio-bg transition-all">
+            <button 
+              onClick={() => onStart('DEMO_VIEW')}
+              className="w-full sm:w-auto px-10 py-4 bg-white border border-studio-border text-lg font-bold rounded-2xl hover:bg-studio-bg transition-all"
+            >
               观看演示
             </button>
           </div>
@@ -120,8 +147,56 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-24 bg-white overflow-hidden">
+        <div className="max-w-[90rem] mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-16">
+            <div className="max-w-2xl text-center md:text-left">
+              <h2 className="text-4xl font-black tracking-tight text-studio-dark mb-6 leading-tight">
+                来自<span className="text-primary underline decoration-primary/20 underline-offset-8">顶尖创作者</span>的认可
+              </h2>
+              <p className="text-lg text-studio-sub leading-relaxed font-medium">
+                成千上万的独立博主、作家和教育者正在使用 Genix Studio 构建他们的数字帝国。
+              </p>
+            </div>
+            <div className="flex -space-x-4">
+               {[1,2,3,4,5].map(i => (
+                 <div key={i} className="w-14 h-14 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-sm transition-transform hover:-translate-y-2 cursor-pointer">
+                    <img src={`https://picsum.photos/seed/face${i}/100/100`} alt="user" />
+                 </div>
+               ))}
+               <div className="w-14 h-14 rounded-full border-4 border-white bg-primary flex items-center justify-center text-white text-xs font-black shadow-lg">
+                  +2k
+               </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <div key={i} className="bg-studio-bg/30 p-8 rounded-[40px] border border-studio-border hover:bg-white hover:shadow-2xl transition-all duration-500 group flex flex-col justify-between">
+                <div className="space-y-6">
+                  <span className="material-symbols-outlined text-primary/30 text-5xl font-black">format_quote</span>
+                  <p className="text-base text-studio-dark leading-relaxed font-medium">
+                    "{t.content}"
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 mt-10">
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-sm group-hover:scale-110 transition-transform duration-500">
+                    <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-studio-dark">{t.name}</h4>
+                    <p className="text-[10px] text-studio-sub font-bold uppercase tracking-widest mt-0.5">{t.role} · {t.platform}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Vision Section */}
-      <section id="vision" className="py-32 bg-white overflow-hidden">
+      <section id="vision" className="py-32 bg-studio-bg/50 overflow-hidden">
         <div className="max-w-[90rem] mx-auto px-6 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-20">
             <div className="space-y-8">
@@ -141,7 +216,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square bg-studio-bg rounded-[60px] relative overflow-hidden shadow-2xl">
+              <div className="aspect-square bg-white rounded-[60px] relative overflow-hidden shadow-2xl border border-studio-border">
                  <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Vision" />
                  <div className="absolute inset-0 bg-primary/10 backdrop-blur-sm"></div>
               </div>
@@ -162,7 +237,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       </section>
 
       {/* Blog Section */}
-      <section id="blog" className="py-24 bg-studio-bg/30">
+      <section id="blog" className="py-24 bg-white">
         <div className="max-w-[90rem] mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div>

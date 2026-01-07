@@ -35,35 +35,35 @@ const Announcements: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-[90rem] mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-5 max-w-[90rem] mx-auto space-y-5 animate-in fade-in duration-500">
       <header>
-        <h1 className="text-3xl font-black tracking-tight text-studio-dark">公告中心</h1>
-        <p className="text-studio-sub mt-2">获取 Creator Studio 的最新动态、功能发布及系统通知。</p>
+        <h1 className="text-xl font-black tracking-tight text-studio-dark">公告中心</h1>
+        <p className="text-[11px] text-studio-sub mt-0.5">获取产品的最新动态、功能发布及系统通知。</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {announcements.map((item) => (
           <div 
             key={item.id} 
             onClick={() => setSelectedAnnouncement(item)}
-            className="group bg-white p-8 rounded-[40px] border border-studio-border hover:border-primary/20 hover:shadow-xl transition-all cursor-pointer relative"
+            className="group bg-white p-5 rounded-2xl border border-studio-border hover:border-primary/20 hover:shadow-lg transition-all cursor-pointer relative"
           >
             {item.isNew && (
-              <span className="absolute top-8 right-8 flex h-2 w-2">
+              <span className="absolute top-5 right-5 flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
               </span>
             )}
-            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getTypeStyle(item.type)}`}>
+            <div className="flex items-center gap-3 mb-3">
+              <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getTypeStyle(item.type)}`}>
                 {getTypeLabel(item.type)}
               </span>
-              <span className="text-xs font-bold text-studio-sub uppercase tracking-widest">{item.date}</span>
+              <span className="text-[10px] font-bold text-studio-sub uppercase tracking-widest">{item.date}</span>
             </div>
-            <h3 className="text-xl font-black text-studio-dark group-hover:text-primary transition-colors mb-3 leading-tight">
+            <h3 className="text-base font-black text-studio-dark group-hover:text-primary transition-colors mb-2 leading-tight">
               {item.title}
             </h3>
-            <p className="text-sm text-studio-sub leading-relaxed line-clamp-2">
+            <p className="text-[11px] text-studio-sub leading-relaxed line-clamp-2">
               {item.excerpt}
             </p>
           </div>
@@ -71,29 +71,28 @@ const Announcements: React.FC = () => {
       </div>
 
       {selectedAnnouncement && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onClick={() => setSelectedAnnouncement(null)}></div>
-          <div className="relative bg-white w-full max-w-2xl rounded-[56px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 p-12">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setSelectedAnnouncement(null)}></div>
+          <div className="relative bg-white w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 p-8">
             <button 
               onClick={() => setSelectedAnnouncement(null)}
-              className="absolute top-10 right-10 p-2 hover:bg-studio-bg rounded-xl transition-colors"
+              className="absolute top-6 right-6 p-1.5 hover:bg-studio-bg rounded-lg transition-colors"
             >
-              <span className="material-symbols-outlined text-studio-sub">close</span>
+              <span className="material-symbols-outlined text-studio-sub text-[20px]">close</span>
             </button>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getTypeStyle(selectedAnnouncement.type)}`}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getTypeStyle(selectedAnnouncement.type)}`}>
                   {getTypeLabel(selectedAnnouncement.type)}
                 </span>
-                <span className="text-xs font-bold text-studio-sub uppercase tracking-widest">{selectedAnnouncement.date}</span>
+                <span className="text-[10px] font-bold text-studio-sub uppercase tracking-widest">{selectedAnnouncement.date}</span>
               </div>
-              <h2 className="text-3xl font-black text-studio-dark leading-tight">{selectedAnnouncement.title}</h2>
-              <div className="prose prose-blue max-w-none text-studio-sub leading-loose font-medium">
+              <h2 className="text-xl font-black text-studio-dark leading-tight">{selectedAnnouncement.title}</h2>
+              <div className="prose prose-sm prose-blue max-w-none text-studio-sub leading-relaxed font-medium">
                 <p>{selectedAnnouncement.excerpt}</p>
-                <p>详细说明及后续操作指南将会在对应的功能文档中同步更新。如果您对本次更新有任何疑问，请联系我们的客服团队。</p>
-                <div className="bg-studio-bg p-6 rounded-3xl mt-8">
-                  <p className="text-xs italic">
-                    Creator Studio 团队致力于为您提供最专业的内容生产工具。感谢您一路以来的支持与信任。
+                <div className="bg-studio-bg p-4 rounded-xl mt-4">
+                  <p className="text-[10px] italic">
+                    Genix Studio 团队致力于为您提供最专业的内容生产工具。感谢您的支持。
                   </p>
                 </div>
               </div>
