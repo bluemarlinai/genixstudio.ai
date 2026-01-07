@@ -1,4 +1,6 @@
 
+export type UserRole = 'CREATOR' | 'ADMIN';
+
 export type ViewState = 
   | 'LANDING' | 'LOGIN' | 'DASHBOARD' | 'EDITOR' | 'TEMPLATES' | 'TEMPLATE_PREVIEW' 
   | 'SETTINGS' | 'PUBLISH' | 'CONTENT_LIST' | 'PLATFORM_CONFIG' | 'TERMS' | 'PRIVACY'
