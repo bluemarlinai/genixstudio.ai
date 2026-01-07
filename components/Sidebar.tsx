@@ -53,14 +53,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         {!isCollapsed && (
           <div className="flex items-center gap-2 overflow-hidden animate-in fade-in duration-300">
             <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10 shrink-0">
-              <img src="assets/logo.png" alt="Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-base font-black tracking-tight text-studio-dark whitespace-nowrap">Genix Studio</h1>
           </div>
         )}
         {isCollapsed && (
           <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10 shrink-0">
-            <img src="assets/logo.png" alt="Logo" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
         )}
         <button 

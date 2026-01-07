@@ -170,7 +170,7 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
 
   const brandPresets: BrandPreset[] = [
     { id: 'b-0', name: '无品牌', component: null, thumbnail: <Thumbnail name="无品牌" /> },
-    { id: 'b-1', name: 'Genix Studio', component: <div className="absolute top-6 right-10 flex items-center gap-2 opacity-30 grayscale pointer-events-none select-none"><img src="assets/logo.png" className="w-4 h-4" /><span className="text-[10px] font-black uppercase tracking-widest">Genix Studio</span></div>, thumbnail: <Thumbnail src="assets/logo.png" name="Genix Studio" /> },
+    { id: 'b-1', name: 'Genix Studio', component: <div className="absolute top-6 right-10 flex items-center gap-2 opacity-30 grayscale pointer-events-none select-none"><img src="/logo.png" className="w-4 h-4" /><span className="text-[10px] font-black uppercase tracking-widest">Genix Studio</span></div>, thumbnail: <Thumbnail src="/logo.png" name="Genix Studio" /> },
   ];
 
   const [activeBg, setActiveBg] = useState<BackgroundPreset>(bgPresets[1]);
