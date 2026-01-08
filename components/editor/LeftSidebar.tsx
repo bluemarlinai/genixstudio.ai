@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BackgroundPreset, DecorationPreset, BrandPreset, SidebarTab } from './EditorTypes';
+import { BackgroundPreset, DecorationPreset, BrandPreset, SnippetPreset, SidebarTab } from './EditorTypes';
 
 interface LeftSidebarProps {
   activeTab: SidebarTab;
@@ -13,6 +12,8 @@ interface LeftSidebarProps {
   brandPresets: BrandPreset[];
   activeBrand: BrandPreset;
   setActiveBrand: (brand: BrandPreset) => void;
+  snippetPresets: SnippetPreset[];
+  onInsertSnippet: (snippet: SnippetPreset) => void;
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
@@ -26,11 +27,13 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
   brandPresets,
   activeBrand,
   setActiveBrand,
+  snippetPresets,
+  onInsertSnippet,
 }) => {
   return (
     <aside className="w-[240px] bg-white border-r border-studio-border flex flex-col z-30 shrink-0">
       <nav className="flex border-b border-studio-border shrink-0">
-        {(['BACKGROUND', 'DECORATION', 'BRAND'] as SidebarTab[]).map((tab) => (
+        {(['BACKGROUND', 'DECORATION', 'PRESETS', 'BRAND'] as SidebarTab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -40,7 +43,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 : 'text-studio-sub hover:bg-studio-bg'
             }`}
           >
-            {tab === 'BACKGROUND' ? '底纹' : tab === 'DECORATION' ? '装饰' : '品牌'}
+            {tab === 'BACKGROUND' ? '底纹' : tab === 'DECORATION' ? '组件' : tab === 'PRESETS' ? '预设' : '品牌'}
           </button>
         ))}
       </nav>
@@ -48,7 +51,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       <div className="flex-1 overflow-y-auto p-3 space-y-6">
         {activeTab === 'BACKGROUND' && (
           <div className="space-y-4">
-            <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">画布样式 ({bgPresets.length})</h4>
+            <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">全景底纹库 ({bgPresets.length})</h4>
             <div className="grid grid-cols-2 gap-2">
               {bgPresets.map((bg) => (
                 <button
@@ -70,29 +73,56 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
         {activeTab === 'DECORATION' && (
           <div className="space-y-4">
-            <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">组件库 ({decorationPresets.length})</h4>
+            <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">排版组件库 ({decorationPresets.length})</h4>
             <div className="grid grid-cols-1 gap-2">
               {decorationPresets.map((dec) => (
                 <button
                   key={dec.id}
                   onClick={() => onInsertDecoration(dec)}
-                  className="group relative flex items-center justify-between p-2.5 rounded-xl border border-studio-border hover:border-primary hover:bg-primary/5 transition-all text-left bg-white overflow-hidden"
+                  className="group relative flex items-center justify-between p-2.5 rounded-xl border border-studio-border hover:border-primary hover:bg-primary/5 transition-all text-left bg-white overflow-hidden shadow-sm hover:shadow-md active:scale-95"
                 >
-                  <div className="flex-1 truncate">
-                    {dec.thumbnail}
-                  </div>
-                  {dec.isVip && (
-                    <span className="ml-2 text-orange-500 text-[7px] font-black border border-orange-200 px-1 rounded bg-orange-50 shrink-0">PRO</span>
-                  )}
+                  <div className="flex-1 truncate">{dec.thumbnail}</div>
+                  {dec.isVip && <span className="ml-2 text-orange-500 text-[7px] font-black border border-orange-200 px-1 rounded bg-orange-50 shrink-0">PRO</span>}
                 </button>
               ))}
             </div>
           </div>
         )}
 
+        {activeTab === 'PRESETS' && (
+          <div className="space-y-6">
+             <div className="space-y-3">
+                <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 flex items-center justify-between">Header 眉标 / 导语</h4>
+                <div className="space-y-2">
+                  {snippetPresets.filter(s => s.type === 'HEADER').map(s => (
+                    <button key={s.id} onClick={() => onInsertSnippet(s)} className="w-full p-3 rounded-xl border border-studio-border bg-white hover:border-primary hover:bg-primary/[0.02] transition-all text-left group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 border border-studio-border flex items-center justify-center shrink-0">{s.thumbnail}</div>
+                        <div className="flex-1 truncate"><p className="text-[10px] font-black text-studio-dark">{s.name}</p><p className="text-[8px] text-studio-sub font-bold uppercase tracking-tighter">顶部追加</p></div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+             </div>
+             <div className="space-y-3">
+                <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 flex items-center justify-between">Footer 签名 / 尾卡</h4>
+                <div className="space-y-2">
+                  {snippetPresets.filter(s => s.type === 'FOOTER').map(s => (
+                    <button key={s.id} onClick={() => onInsertSnippet(s)} className="w-full p-3 rounded-xl border border-studio-border bg-white hover:border-primary hover:bg-primary/[0.02] transition-all text-left group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 border border-studio-border flex items-center justify-center shrink-0">{s.thumbnail}</div>
+                        <div className="flex-1 truncate"><p className="text-[10px] font-black text-studio-dark">{s.name}</p><p className="text-[8px] text-studio-sub font-bold uppercase tracking-tighter">末尾追加</p></div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+             </div>
+          </div>
+        )}
+
         {activeTab === 'BRAND' && (
           <div className="space-y-4">
-            <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">品牌预设 ({brandPresets.length})</h4>
+            <h4 className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">品牌水印预设</h4>
             <div className="grid grid-cols-2 gap-2">
               {brandPresets.map((brand) => (
                 <button
@@ -117,7 +147,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
          <div className="p-2.5 bg-white rounded-xl border border-studio-border shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span className="text-[9px] font-black uppercase text-studio-sub tracking-widest">Connected</span>
+               <span className="text-[9px] font-black uppercase text-studio-sub tracking-widest">LIVE SYNCING</span>
             </div>
             <span className="material-symbols-outlined text-[14px] text-gray-300">cloud_done</span>
          </div>

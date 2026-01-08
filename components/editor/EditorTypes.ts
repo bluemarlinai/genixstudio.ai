@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export type BackgroundPreset = {
@@ -24,4 +23,12 @@ export type BrandPreset = {
   thumbnail: React.ReactNode;
 };
 
-export type SidebarTab = 'BACKGROUND' | 'DECORATION' | 'BRAND';
+export type SnippetPreset = {
+  id: string;
+  name: string;
+  type: 'HEADER' | 'FOOTER';
+  content: string;
+  thumbnail: React.ReactNode;
+};
+
+export type SidebarTab = 'BACKGROUND' | 'DECORATION' | 'BRAND' | 'PRESETS';

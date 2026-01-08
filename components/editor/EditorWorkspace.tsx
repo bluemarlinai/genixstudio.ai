@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { EditorContent } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
@@ -85,10 +84,10 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
   );
 
   return (
-    <section className="flex-1 overflow-y-auto bg-studio-bg/60 flex flex-col items-center scroll-smooth pb-32 relative transition-all duration-500">
+    <section className="flex-1 overflow-y-auto bg-studio-bg/60 flex flex-col items-center scroll-smooth pt-8 pb-32 relative transition-all duration-500">
       
-      {/* 1. STICKY TOOLBAR - MOVED TO ABSOLUTE TOP TO ELIMINATE CONTENT GAP */}
-      <div className="sticky top-4 mb-4 flex items-center gap-1.5 bg-white/90 backdrop-blur-xl border border-studio-border rounded-[22px] p-1.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] z-50 ring-1 ring-black/5 animate-in slide-in-from-top-4 duration-500">
+      {/* 1. STICKY TOOLBAR - Restored to top-8 and mb-8 */}
+      <div className="sticky top-8 mb-8 flex items-center gap-1.5 bg-white/90 backdrop-blur-xl border border-studio-border rounded-[22px] p-1.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] z-50 ring-1 ring-black/5 animate-in slide-in-from-top-4 duration-500">
         <div className="flex items-center gap-0.5 pr-1.5 border-r border-studio-border">
           <ToolbarButton onClick={() => editor.chain().focus().undo().run()} icon="undo" label="撤销" />
           <ToolbarButton onClick={() => editor.chain().focus().redo().run()} icon="redo" label="重做" />
@@ -122,12 +121,12 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
         </div>
       </div>
 
-      {/* 2. MAIN CONTENT AREA WITH SIDEBAR TOC */}
-      <div className="flex w-full max-w-[1100px] items-start justify-center gap-8 px-4">
+      {/* 2. MAIN CONTENT AREA WITH SIDEBAR TOC - Adjusted mt-8 for better balance */}
+      <div className="flex w-full max-w-[1100px] items-start justify-center gap-8 px-4 mt-8">
         
-        {/* LEFT STICKY TOC - FIXED TO LEFT OF CANVAS */}
+        {/* LEFT STICKY TOC */}
         <div className="sticky top-24 w-52 shrink-0 hidden xl:block animate-in fade-in slide-in-from-left-4 duration-1000">
-          <div className="bg-white/60 backdrop-blur-xl border border-studio-border rounded-[28px] p-5 shadow-sm space-y-4">
+          <div className="mt-2.5 bg-white/60 backdrop-blur-xl border border-studio-border rounded-[28px] p-5 shadow-sm space-y-4">
             <div className="flex items-center gap-2 border-b border-studio-border pb-3">
               <span className="material-symbols-outlined text-[16px] text-primary font-bold">toc</span>
               <span className="text-[9px] font-black text-studio-dark uppercase tracking-widest">智能大纲</span>
@@ -166,7 +165,7 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* 3. ARTICLE CANVAS - ZERO TOP GAP DESIGN */}
+        {/* 3. ARTICLE CANVAS */}
         <div 
           className={`w-full max-w-[720px] rounded-[32px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.05)] border border-studio-border relative transition-all duration-700 ease-in-out flex flex-col mb-20 z-10 ${activeBg.class || ''}`}
           style={{
@@ -181,7 +180,7 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
             {activeBrand.component}
           </div>
 
-          {/* EDITOR BODY - MINIMIZED TOP PADDING */}
+          {/* EDITOR BODY */}
           <div className="relative z-10 px-8 pt-4 pb-14 md:px-14 md:pt-6 md:pb-20 flex-1">
             <EditorContent editor={editor} />
             
@@ -199,7 +198,7 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* RIGHT SPACER FOR BALANCE ON XL SCREENS */}
+        {/* RIGHT SPACER */}
         <div className="w-52 shrink-0 hidden xl:block pointer-events-none"></div>
 
       </div>
