@@ -32,7 +32,7 @@ const Span = Node.create({
 
 interface EditorProps {
   onBack: () => void;
-  onPublish: () => void;
+  onPublish: (content: string, title: string) => void;
   onNavigateUpgrade: () => void;
 }
 
@@ -227,7 +227,12 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
            </button>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={onPublish} className="px-6 py-2 bg-primary text-white text-[10px] font-black rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">发布文章</button>
+          <button 
+            onClick={() => onPublish(editor?.getHTML() || '', title)} 
+            className="px-6 py-2 bg-primary text-white text-[10px] font-black rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
+          >
+            发布文章
+          </button>
         </div>
       </header>
 

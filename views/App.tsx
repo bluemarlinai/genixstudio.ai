@@ -38,6 +38,10 @@ const App: React.FC = () => {
   const [activePlatform, setActivePlatform] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // State for content being published
+  const [publishingContent, setPublishingContent] = useState<string>('');
+  const [publishingTitle, setPublishingTitle] = useState<string>('');
 
   const getPageTitle = () => {
     switch (currentView) {
@@ -90,6 +94,12 @@ const App: React.FC = () => {
     setCurrentView('EDITOR');
   };
 
+  const handlePublishNavigate = (content: string, title: string) => {
+    setPublishingContent(content);
+    setPublishingTitle(title);
+    setCurrentView('PUBLISH');
+  };
+
   const getActions = () => {
     if (currentView.startsWith('ADMIN_')) {
       return (
@@ -127,9 +137,9 @@ const App: React.FC = () => {
   if (currentView === 'PRIVACY') return <PrivacyPage onBack={() => setCurrentView('LANDING')} />;
   if (currentView === 'UPGRADE') return <UpgradePage onBack={() => setCurrentView('DASHBOARD')} onUpgrade={() => setCurrentView('PAYMENT')} />;
   if (currentView === 'PAYMENT') return <PaymentPage onBack={() => setCurrentView('UPGRADE')} onSuccess={() => setCurrentView('DASHBOARD')} />;
-  if (currentView === 'EDITOR') return <Editor onBack={() => setCurrentView('CONTENT_LIST')} onPublish={() => setCurrentView('PUBLISH')} onNavigateUpgrade={() => setCurrentView('UPGRADE')} />;
+  if (currentView === 'EDITOR') return <Editor onBack={() => setCurrentView('CONTENT_LIST')} onPublish={handlePublishNavigate} onNavigateUpgrade={() => setCurrentView('UPGRADE')} />;
   if (currentView === 'TEMPLATE_PREVIEW' && selectedTemplate) return <TemplatePreview template={selectedTemplate} onBack={() => setCurrentView('TEMPLATES')} onUse={handleApplyTemplate} />;
-  if (currentView === 'PUBLISH') return <Publish onBack={() => setCurrentView('EDITOR')} onSuccess={() => setCurrentView('DASHBOARD')} />;
+  if (currentView === 'PUBLISH') return <Publish content={publishingContent} title={publishingTitle} onBack={() => setCurrentView('EDITOR')} onSuccess={() => setCurrentView('DASHBOARD')} />;
   if (currentView === 'BLOG') return <BlogView onBack={() => setCurrentView('LANDING')} />;
 
   return (
