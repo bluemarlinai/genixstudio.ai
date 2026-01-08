@@ -40,9 +40,21 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
   const [summary, setSummary] = useState('深度探讨生成式 AI 对创作者生态的影响，解析如何利用技术杠杆实现从单一创作者到多维内容导演的华丽转型。');
   const [coverImage, setCoverImage] = useState('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=800');
   const [activeTab, setActiveTab] = useState<SidebarTab>('BACKGROUND');
+  
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
 
-  const longContent = `
-    <p style="text-align: center; color: #137fec; font-weight: 900; letter-spacing: 0.1em; font-size: 0.75rem; margin-bottom: 2rem;">GENIX INSIGHTS • SPECIAL REPORT • 2024</p>
+  const toggleZenMode = () => {
+    if (!isLeftCollapsed || !isRightCollapsed) {
+      setIsLeftCollapsed(true);
+      setIsRightCollapsed(true);
+    } else {
+      setIsLeftCollapsed(false);
+      setIsRightCollapsed(false);
+    }
+  };
+
+  const longContent = `<p style="text-align: center; color: #137fec; font-weight: 900; letter-spacing: 0.1em; font-size: 0.75rem; margin-bottom: 1rem;">GENIX INSIGHTS • SPECIAL REPORT • 2024</p>
     <h1>共生演进：AI 时代的创意表达与个体品牌重塑</h1>
     <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
     
@@ -94,17 +106,7 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
       </div>
     </div>
     
-    <p>（演示长文本，旨在展示画布的动态生长能力...）</p>
-    <p>我们需要理解的是，AI 的介入并不会让创作变得容易，而是让创作变得更深刻。它剥离了那些阻碍我们思考的细枝末节，迫使我们直面表达的核心。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-    <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
-  `;
+    <p>我们需要理解的是，AI 的介入并不会让创作变得容易，而是让创作变得更深刻。它剥离了那些阻碍我们思考的细枝末节，迫使我们直面表达的核心。</p>`;
 
   const editor = useEditor({
     extensions: [StarterKit, Div, Span, Placeholder.configure({ placeholder: '在此处落笔您的灵感...' })],
@@ -112,20 +114,18 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
     editorProps: { attributes: { class: 'prose prose-sm prose-blue max-w-none focus:outline-none' } },
   });
 
-  // Helper for consistent thumbnails
   const Thumbnail = ({ src, name }: { src?: string, name: string }) => (
     <div className="w-full h-full relative bg-gray-50 flex items-center justify-center">
       {src ? (
         <img src={src} className="w-full h-full object-cover" alt={name} />
       ) : (
-        <div className="flex flex-col items-center gap-1">
-          <span className="material-symbols-outlined text-gray-300 text-[20px]">palette</span>
+        <div className="flex flex-col items-center gap-1 text-gray-300">
+          <span className="material-symbols-outlined text-[20px]">palette</span>
         </div>
       )}
     </div>
   );
 
-  // --- 21 BACKGROUNDS WITH CONSISTENT STYLE ---
   const bgPresets: BackgroundPreset[] = [
     { id: 'w-1', name: '纯净白', class: 'bg-white', thumbnail: <Thumbnail name="纯净白" /> },
     { id: 'w-2', name: '小寒初雪', style: { backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.9)), url("https://images.unsplash.com/photo-1418985991508-e47386d96a71?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: <Thumbnail src="https://images.unsplash.com/photo-1418985991508-e47386d96a71?auto=format&fit=crop&q=80&w=300" name="小寒初雪" /> },
@@ -181,42 +181,87 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-studio-bg font-sans overflow-hidden">
-      <header className="h-[52px] px-4 bg-white border-b border-studio-border flex items-center justify-between shrink-0 z-40">
+      <header className="h-[52px] px-4 bg-white border-b border-studio-border flex items-center justify-between shrink-0 z-50">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="p-1.5 hover:bg-studio-bg rounded-lg transition-colors">
-            <span className="material-symbols-outlined text-[20px] text-studio-sub">arrow_back</span>
+          <button onClick={onBack} className="p-1.5 hover:bg-studio-bg rounded-lg transition-colors text-studio-sub">
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
           <div className="h-4 w-px bg-studio-border"></div>
           <input 
             value={title} 
             onChange={(e) => setTitle(e.target.value)}
-            className="bg-transparent border-none text-[11px] font-black text-studio-dark w-[450px] focus:ring-0 p-0"
+            className="bg-transparent border-none text-[11px] font-black text-studio-dark w-[350px] focus:ring-0 p-0"
             placeholder="文章标题..."
           />
         </div>
+
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+           <button 
+            onClick={toggleZenMode}
+            className={`flex items-center gap-2 px-5 py-1.5 rounded-full border transition-all duration-500 hover:scale-[1.03] active:scale-95 group ${
+              isLeftCollapsed && isRightCollapsed 
+                ? 'bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/10' 
+                : 'bg-white text-studio-sub border-studio-border hover:text-primary hover:border-primary/20'
+            }`}
+           >
+             <span className="material-symbols-outlined text-[18px] transition-transform duration-500 group-hover:rotate-180">
+               {isLeftCollapsed && isRightCollapsed ? 'fullscreen_exit' : 'fullscreen'}
+             </span>
+             <span className="text-[9px] font-black uppercase tracking-[0.2em] hidden md:block">
+               {isLeftCollapsed && isRightCollapsed ? '退出全屏' : '禅定模式'}
+             </span>
+           </button>
+        </div>
+
         <div className="flex items-center gap-3">
-          <span className="text-[9px] text-emerald-500 font-black uppercase tracking-widest hidden md:block">已同步云端</span>
-          <button 
-            onClick={onPublish}
-            className="px-6 py-2 bg-primary text-white text-[10px] font-black rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
-          >
+          <button onClick={onPublish} className="px-6 py-2 bg-primary text-white text-[10px] font-black rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">
             发布文章
           </button>
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        <LeftSidebar 
-          activeTab={activeTab} setActiveTab={setActiveTab}
-          bgPresets={bgPresets} activeBg={activeBg} setActiveBg={setActiveBg}
-          decorationPresets={decorationPresets} onInsertDecoration={handleInsertDecoration}
-          brandPresets={brandPresets} activeBrand={activeBrand} setActiveBrand={setActiveBrand}
-        />
-        <EditorWorkspace editor={editor} activeBg={activeBg} activeBrand={activeBrand} />
-        <RightSidebar 
-          coverImage={coverImage} isGeneratingCover={false} onGenerateCover={() => {}}
-          summary={summary} setSummary={setSummary} isGeneratingSummary={false} onGenerateSummary={() => {}}
-        />
+      <div className="flex-1 flex overflow-hidden relative">
+        <div className="relative h-full flex shrink-0">
+          <div className={`transition-all duration-500 ease-in-out overflow-hidden border-r border-studio-border bg-white ${isLeftCollapsed ? 'w-0 opacity-0' : 'w-[240px] opacity-100'}`}>
+            <LeftSidebar 
+              activeTab={activeTab} setActiveTab={setActiveTab}
+              bgPresets={bgPresets} activeBg={activeBg} setActiveBg={setActiveBg}
+              decorationPresets={decorationPresets} onInsertDecoration={handleInsertDecoration}
+              brandPresets={brandPresets} activeBrand={activeBrand} setActiveBrand={setActiveBrand}
+            />
+          </div>
+          
+          <button 
+            onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+            className={`absolute top-1/2 -translate-y-1/2 -right-3 z-[60] w-6 h-14 bg-white border border-studio-border rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center text-studio-sub hover:text-primary hover:scale-110 transition-all group ${isLeftCollapsed ? 'translate-x-1 opacity-100' : 'opacity-20 hover:opacity-100'}`}
+          >
+            <span className={`material-symbols-outlined text-[14px] transition-transform duration-500 ${isLeftCollapsed ? 'rotate-180' : ''}`}>
+              chevron_left
+            </span>
+          </button>
+        </div>
+
+        <div className="flex-1 relative overflow-hidden flex flex-col">
+           <EditorWorkspace editor={editor} activeBg={activeBg} activeBrand={activeBrand} />
+        </div>
+
+        <div className="relative h-full flex shrink-0">
+          <button 
+            onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+            className={`absolute top-1/2 -translate-y-1/2 -left-3 z-[60] w-6 h-14 bg-white border border-studio-border rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center text-studio-sub hover:text-primary hover:scale-110 transition-all group ${isRightCollapsed ? '-translate-x-1 opacity-100' : 'opacity-20 hover:opacity-100'}`}
+          >
+            <span className={`material-symbols-outlined text-[14px] transition-transform duration-500 ${isRightCollapsed ? '' : 'rotate-180'}`}>
+              chevron_left
+            </span>
+          </button>
+
+          <div className={`transition-all duration-500 ease-in-out overflow-hidden border-l border-studio-border bg-white ${isRightCollapsed ? 'w-0 opacity-0' : 'w-[260px] opacity-100'}`}>
+            <RightSidebar 
+              coverImage={coverImage} isGeneratingCover={false} onGenerateCover={() => {}}
+              summary={summary} setSummary={setSummary} isGeneratingSummary={false} onGenerateSummary={() => {}}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
