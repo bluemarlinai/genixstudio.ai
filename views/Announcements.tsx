@@ -35,7 +35,7 @@ const Announcements: React.FC = () => {
   };
 
   return (
-    <div className="p-5 max-w-[90rem] mx-auto space-y-5 animate-in fade-in duration-500">
+    <div className="p-5 w-full space-y-5 animate-in fade-in duration-500">
       <header>
         <h1 className="text-xl font-black tracking-tight text-studio-dark">公告中心</h1>
         <p className="text-[11px] text-studio-sub mt-0.5">获取产品的最新动态、功能发布及系统通知。</p>

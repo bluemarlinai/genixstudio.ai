@@ -61,7 +61,7 @@ const MediaLibrary: React.FC = () => {
   }));
 
   return (
-    <div className="p-5 max-w-[90rem] mx-auto space-y-5 animate-in fade-in duration-500">
+    <div className="p-5 w-full space-y-5 animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-black tracking-tight text-studio-dark">媒体素材库</h1>

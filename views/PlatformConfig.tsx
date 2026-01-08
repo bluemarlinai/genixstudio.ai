@@ -16,7 +16,7 @@ const PlatformConfig: React.FC<PlatformConfigProps> = ({ platformId, onBack }) =
   }[platformId as 'wechat' | 'medium' | 'zhihu'] || { name: '未知平台', icon: 'help', color: 'text-gray-400' };
 
   return (
-    <div className="p-5 max-w-[90rem] mx-auto space-y-6 animate-in fade-in duration-500">
+    <div className="p-5 w-full space-y-6 animate-in fade-in duration-500">
       <header className="flex items-center gap-3">
         <button onClick={onBack} className="p-1.5 hover:bg-white rounded-lg border border-transparent hover:border-studio-border shadow-sm bg-white">
           <span className="material-symbols-outlined text-studio-sub text-[20px]">arrow_back</span>

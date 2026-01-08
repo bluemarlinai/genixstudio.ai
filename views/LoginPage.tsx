@@ -24,7 +24,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white mb-6 shadow-xl shadow-primary/10 overflow-hidden">
-            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+            <img src="assets/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
           </div>
           <h2 className="text-3xl font-black text-studio-dark tracking-tight">
             登录工作台

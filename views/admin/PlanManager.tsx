@@ -74,7 +74,7 @@ const PlanManager: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-[90rem] mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="p-8 w-full space-y-8 animate-in fade-in duration-500 pb-20">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-slate-900">方案与权益管理</h1>

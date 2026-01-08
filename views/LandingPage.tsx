@@ -59,10 +59,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
     <div className="bg-white min-h-screen font-sans selection:bg-primary/30 scroll-smooth">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="w-full px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10">
-              <img src="/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
+              <img src="assets/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tight text-studio-dark">Genix Studio</span>
           </div>
@@ -124,7 +124,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Features Section */}
       <section id="features" className="py-24 bg-studio-bg/50">
-        <div className="max-w-[90rem] mx-auto px-6">
+        <div className="w-full px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-black mb-4">专注个人创作效率</h2>
             <p className="text-studio-sub">剔除复杂流程，只为你的创作加速</p>
@@ -149,7 +149,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Testimonials Section */}
       <section id="testimonials" className="py-24 bg-white overflow-hidden">
-        <div className="max-w-[90rem] mx-auto px-6">
+        <div className="w-full px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-16">
             <div className="max-w-2xl text-center md:text-left">
               <h2 className="text-4xl font-black tracking-tight text-studio-dark mb-6 leading-tight">
@@ -197,7 +197,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Vision Section */}
       <section id="vision" className="py-32 bg-studio-bg/50 overflow-hidden">
-        <div className="max-w-[90rem] mx-auto px-6 relative">
+        <div className="w-full px-6 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-20">
             <div className="space-y-8">
               <h2 className="text-4xl font-black leading-tight">重新定义<br />独立创作者的工作流</h2>
@@ -238,7 +238,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Blog Section */}
       <section id="blog" className="py-24 bg-white">
-        <div className="max-w-[90rem] mx-auto px-6">
+        <div className="w-full px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div>
               <h2 className="text-3xl font-black tracking-tight text-studio-dark">官方博客：见证灵感的生长</h2>
@@ -282,12 +282,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Footer */}
       <footer className="bg-studio-dark text-white pt-20 pb-10">
-        <div className="max-w-[90rem] mx-auto px-6">
+        <div className="w-full px-6">
           <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-16">
             <div className="space-y-6 max-w-sm">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white/5">
-                  <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                  <img src="assets/logo.png" alt="Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="text-lg font-black tracking-tight">Genix Studio</span>
               </div>
