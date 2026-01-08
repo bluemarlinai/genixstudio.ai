@@ -56,7 +56,6 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
   };
 
   const longContent = `<p style="text-align: center; color: #137fec; font-weight: 900; letter-spacing: 0.1em; font-size: 0.75rem; margin-bottom: 1rem;">GENIX INSIGHTS • SPECIAL REPORT • 2024</p>
-    <h1>共生演进：AI 时代的创意表达与个体品牌重塑</h1>
     <p>在这个信息过载的数字时代，创作者不仅需要有深度的思考，更需要有极致的排版审美来吸引受众。Genix Studio 致力于消解技术门槛，让每一个像素都服务于您的表达。</p>
     
     <div class="decoration-block" style="margin:3rem 0; text-align:center; padding:2.5rem; background:linear-gradient(135deg, #137fec08, #137fec02); border-radius:2.5rem; border:1.5px dashed #137fec30;"><span class="material-symbols-outlined" style="font-size:2.5rem; color:#137fec; opacity:0.3; display:block; margin-bottom:1.25rem;">format_quote</span><p style="font-size:1.25rem; font-weight:900; color:#1e293b; line-height:1.6; margin:0; font-style:italic; letter-spacing:-0.01em;">“技术并非创作的终结，而是表达的新起点。我们正从文字的编织者进化为意境的策展人。”</p></div>
@@ -107,7 +106,7 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
       </div>
     </div>
     
-    <p>我们需要理解的是，AI 的介入并不会让创作变得容易，而是让创作变得更深刻。它剥离了那些阻碍我们思考的细枝末节，迫使我们直面表达的核心价值。</p>`;
+    <p>我们需要理解的是， AI 的介入并不会让创作变得容易，而是让创作变得更深刻。它剥离了那些阻碍我们思考的细枝末节，迫使我们直面表达的核心价值。</p>`;
 
   const editor = useEditor({
     extensions: [StarterKit, Div, Span, Placeholder.configure({ placeholder: '在此处落笔您的灵感...' })],

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useRef } from 'react';
 import { EditorContent } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import { BackgroundPreset, BrandPreset } from './EditorTypes';
@@ -21,7 +22,9 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
   activeBrand,
 }) => {
   const [headings, setHeadings] = useState<HeadingItem[]>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // 提取大纲数据
   useEffect(() => {
     if (!editor) return;
     const updateHeadings = () => {
@@ -44,7 +47,8 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
   if (!editor) return null;
 
   const scrollToHeading = (index: number) => {
-    const headingNodes = editor.view.dom.querySelectorAll('h1, h2, h3');
+    // 获取编辑器内部的所有标题标签
+    const headingNodes = editor.view.dom.querySelectorAll('h1, h2, h3, h4');
     if (headingNodes[index]) {
       headingNodes[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -84,9 +88,12 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
   );
 
   return (
-    <section className="flex-1 overflow-y-auto bg-studio-bg/60 flex flex-col items-center scroll-smooth pt-8 pb-32 relative transition-all duration-500">
+    <section 
+      ref={scrollContainerRef}
+      className="flex-1 overflow-y-auto bg-studio-bg/60 flex flex-col items-center scroll-smooth pt-8 pb-32 relative transition-all duration-500"
+    >
       
-      {/* 1. STICKY TOOLBAR - Restored to top-8 and mb-8 */}
+      {/* 1. STICKY TOOLBAR */}
       <div className="sticky top-8 mb-8 flex items-center gap-1.5 bg-white/90 backdrop-blur-xl border border-studio-border rounded-[22px] p-1.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] z-50 ring-1 ring-black/5 animate-in slide-in-from-top-4 duration-500">
         <div className="flex items-center gap-0.5 pr-1.5 border-r border-studio-border">
           <ToolbarButton onClick={() => editor.chain().focus().undo().run()} icon="undo" label="撤销" />
@@ -112,7 +119,7 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
         </div>
 
         <div className="flex items-center gap-2 pl-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-studio-dark text-white rounded-xl text-[9px] font-black hover:bg-black transition-all uppercase tracking-[0.15em] shadow-lg shadow-black/10 active:scale-95 group overflow-hidden">
+          <button className="flex items-center gap-2 px-4 py-2 bg-studio-dark text-white rounded-xl text-[9px] font-black hover:bg-black transition-all uppercase tracking-[0.15em] shadow-lg shadow-black/10 active:scale-95 group overflow-hidden text-nowrap">
             <span className="material-symbols-outlined text-[16px] text-primary animate-pulse">bolt</span>
             智能润色
           </button>
@@ -121,11 +128,10 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
         </div>
       </div>
 
-      {/* 2. MAIN CONTENT AREA WITH SIDEBAR TOC - Adjusted mt-8 for better balance */}
       <div className="flex w-full max-w-[1100px] items-start justify-center gap-8 px-4 mt-8">
         
-        {/* LEFT STICKY TOC */}
-        <div className="sticky top-24 w-52 shrink-0 hidden xl:block animate-in fade-in slide-in-from-left-4 duration-1000">
+        {/* LEFT STICKY TOC - 历史版本恢复区 (断点调至 lg 确保可见) */}
+        <div className="sticky top-24 w-52 shrink-0 hidden lg:block animate-in fade-in slide-in-from-left-4 duration-1000">
           <div className="mt-2.5 bg-white/60 backdrop-blur-xl border border-studio-border rounded-[28px] p-5 shadow-sm space-y-4">
             <div className="flex items-center gap-2 border-b border-studio-border pb-3">
               <span className="material-symbols-outlined text-[16px] text-primary font-bold">toc</span>
@@ -140,7 +146,9 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
                   <button
                     key={h.id}
                     onClick={() => scrollToHeading(i)}
-                    className={`block text-left hover:translate-x-1 transition-all group w-full ${h.level === 1 ? 'pl-0' : h.level === 2 ? 'pl-3' : 'pl-5'}`}
+                    className={`block text-left hover:translate-x-1 transition-all group w-full ${
+                      h.level === 1 ? 'pl-0' : h.level === 2 ? 'pl-3' : 'pl-5'
+                    }`}
                   >
                     <p className={`truncate leading-tight ${
                       h.level === 1 
@@ -165,9 +173,9 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* 3. ARTICLE CANVAS */}
+        {/* 2. ARTICLE CANVAS */}
         <div 
-          className={`w-full max-w-[720px] rounded-[32px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.05)] border border-studio-border relative transition-all duration-700 ease-in-out flex flex-col mb-20 z-10 ${activeBg.class || ''}`}
+          className={`w-full max-w-[720px] rounded-[32px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.05)] border border-studio-border relative transition-all duration-700 ease-in-out flex flex-col mb-40 z-10 ${activeBg.class || ''}`}
           style={{
             ...activeBg.style,
             backgroundRepeat: 'repeat',
@@ -198,8 +206,8 @@ const EditorWorkspace: React.FC<EditorWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* RIGHT SPACER */}
-        <div className="w-52 shrink-0 hidden xl:block pointer-events-none"></div>
+        {/* RIGHT SPACER - 与左侧 TOC 保持平衡 (同样调至 lg) */}
+        <div className="w-52 shrink-0 hidden lg:block pointer-events-none"></div>
 
       </div>
     </section>

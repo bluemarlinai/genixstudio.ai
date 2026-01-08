@@ -23,72 +23,70 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
   };
 
   /**
-   * 针对微信/头条的超强兼容性内联处理函数
-   * 重点修复：Padding 不显示、边框背景丢失、盒模型错乱
+   * 微信公众号超高保真处理逻辑
+   * 修复：标题重复、加粗颜色错位、Padding丢失、边距过大
    */
-  const processHtmlForWechat = (rawHtml: string, articleTitle: string) => {
+  const processHtmlForWechat = (rawHtml: string) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(rawHtml, 'text/html');
     
-    // 微信高保真基础样式映射
+    // 微信高保真基础样式映射 (调整为更标准的中文字体与颜色)
     const styleMap: Record<string, string> = {
-      'h1': 'font-size: 28px; font-weight: bold; color: #1e293b; margin: 32px 0 20px; line-height: 1.4; text-align: left; letter-spacing: 0.5px;',
-      'h2': 'font-size: 22px; font-weight: bold; color: #1e293b; margin: 28px 0 16px; line-height: 1.4; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;',
-      'h3': 'font-size: 19px; font-weight: bold; color: #334155; margin: 24px 0 12px; line-height: 1.4;',
-      'p': 'font-size: 16px; line-height: 1.8; color: #3f3f3f; margin: 16px 0; word-wrap: break-word; text-align: justify;',
-      'blockquote': 'border-left: 4px solid #137fec; padding: 16px 20px; background-color: #f8fafc; color: #64748b; margin: 24px 0; border-radius: 8px; font-style: italic;',
-      'strong': 'color: #137fec; font-weight: bold;',
-      'img': 'max-width: 100% !important; height: auto !important; border-radius: 12px; display: block; margin: 24px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); outline: none;',
-      'ul': 'list-style-type: disc; margin: 18px 0; padding-left: 25px;',
-      'ol': 'list-style-type: decimal; margin: 18px 0; padding-left: 25px;',
-      'li': 'margin-bottom: 10px; font-size: 16px; color: #4b5563;'
+      'h1': 'font-size: 26px; font-weight: bold; color: #1e293b; margin: 25px 0 15px; line-height: 1.5; text-align: left;',
+      'h2': 'font-size: 21px; font-weight: bold; color: #1e293b; margin: 22px 0 12px; line-height: 1.5; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;',
+      'h3': 'font-size: 18px; font-weight: bold; color: #334155; margin: 18px 0 10px; line-height: 1.5;',
+      'p': 'font-size: 16px; line-height: 1.8; color: #333333; margin: 14px 0; word-wrap: break-word; text-align: justify;',
+      'blockquote': 'border-left: 3px solid #137fec; padding: 12px 18px; background-color: #f8fafc; color: #666666; margin: 18px 0; border-radius: 6px; font-style: normal;',
+      'strong': 'color: #1e293b; font-weight: bold;', // 修复：由蓝改深灰
+      'img': 'max-width: 100% !important; height: auto !important; border-radius: 8px; display: block; margin: 15px auto; outline: none;',
+      'ul': 'list-style-type: disc; margin: 15px 0; padding-left: 20px;',
+      'ol': 'list-style-type: decimal; margin: 15px 0; padding-left: 20px;',
+      'li': 'margin-bottom: 8px; font-size: 16px; color: #333333;'
     };
 
-    // 微信兼容性：将所有 div 标签重写为 section
+    // 微信渲染核心：将所有 div 转换为 section，这是布局稳定的基石
     const divs = doc.body.querySelectorAll('div');
     divs.forEach(div => {
       const section = doc.createElement('section');
       section.innerHTML = div.innerHTML;
-      // 拷贝所有属性，尤其是 style 和 class
       Array.from(div.attributes).forEach(attr => {
         section.setAttribute(attr.name, attr.value);
       });
       div.parentNode?.replaceChild(section, div);
     });
 
-    // 递归遍历所有元素注入内联样式
+    // 递归注入内联样式
     const allElements = doc.body.querySelectorAll('*');
     allElements.forEach(el => {
       const tagName = el.tagName.toLowerCase();
       const baseStyle = styleMap[tagName] || '';
       const existingStyle = el.getAttribute('style') || '';
       
-      // 核心修复点：强制注入 display: block 和 box-sizing，确保 padding 生效
-      let forcedLayout = 'display: block; box-sizing: border-box !important;';
+      // 核心修复点：
+      // 1. 强制 box-sizing
+      // 2. 针对 section 注入 overflow: hidden 以触发微信的 padding 解析
+      // 3. 强制 width: 100% 防止内容缩窄
+      let forcedLayout = 'box-sizing: border-box !important; max-width: 100% !important;';
       
-      // 如果是行内元素（如 strong, span），不需要强制块级
-      if (['strong', 'span', 'em', 'a'].includes(tagName)) {
-        forcedLayout = 'box-sizing: border-box !important;';
+      if (tagName === 'section') {
+        forcedLayout += ' display: block; overflow: hidden; width: 100%;';
+      } else if (!['strong', 'span', 'em', 'a'].includes(tagName)) {
+        forcedLayout += ' display: block;';
       }
 
-      // 合并样式：基础样式 + 强制布局 + 原始样式
-      // 将原始样式放在最后，以确保用户的自定义背景/边框/内边距覆盖默认值
       el.setAttribute('style', `${baseStyle}; ${forcedLayout}; ${existingStyle}`.trim());
-      
-      // 针对微信的特殊处理：清除所有 class 以防干扰
-      el.removeAttribute('class');
+      el.removeAttribute('class'); // 清理类名防止冲突
     });
 
-    // 组装最终结果，增加微信专用的外层容器保护（使用 section 替代 div）
+    // 组装最终结果
+    // 1. 移除 articleTitle (解决标题重复问题)
+    // 2. 修正外层容器，解决“缩窄”和“顶部间距过大”
     return `
-      <section style="font-family: -apple-system-font,BlinkMacSystemFont,Helvetica Neue,PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Arial,sans-serif; letter-spacing: 0.034em; padding: 20px; box-sizing: border-box; color: #333; line-height: 1.8; background-color: #ffffff;">
-        <section style="max-width: 100%; box-sizing: border-box !important;">
-          <h1 style="${styleMap['h1']} font-size: 30px; margin-bottom: 30px;">${articleTitle}</h1>
-          <section style="margin-top: 20px; box-sizing: border-box !important;">
-            ${doc.body.innerHTML}
-          </section>
-          <section style="margin-top: 60px; text-align: center; color: #adb5bd; font-size: 12px; letter-spacing: 1px;">
-            <p style="margin: 0; opacity: 0.6;">CREATED BY GENIX STUDIO</p>
+      <section style="margin: 0 auto; padding: 0; font-family: -apple-system-font,BlinkMacSystemFont,Helvetica Neue,PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Arial,sans-serif; line-height: 1.8; color: #333; max-width: 100%; box-sizing: border-box;">
+        <section style="margin: 0 auto; padding: 15px; width: 100%; box-sizing: border-box !important; overflow: hidden;">
+          ${doc.body.innerHTML}
+          <section style="margin-top: 40px; text-align: center; color: #bbbbbb; font-size: 11px; letter-spacing: 2px;">
+            <p style="margin: 0; opacity: 0.5;">DESIGNED WITH GENIX STUDIO</p>
           </section>
         </section>
       </section>
@@ -97,11 +95,10 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
 
   const handleCopyArticle = async () => {
     try {
-      // 执行深度内联处理
-      const processedHtml = processHtmlForWechat(content, title);
+      // 执行样式修复逻辑
+      const processedHtml = processHtmlForWechat(content);
       const plainText = title + '\n\n' + content.replace(/<[^>]*>/g, '');
 
-      // 执行富文本拷贝
       const htmlBlob = new Blob([processedHtml], { type: 'text/html' });
       const textBlob = new Blob([plainText], { type: 'text/plain' });
       
@@ -122,7 +119,7 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
 
   return (
     <div className="fixed inset-0 bg-studio-bg z-[70] flex flex-col font-sans overflow-hidden">
-      {/* Top Bar */}
+      {/* Enhanced Header */}
       <header className="h-16 px-6 bg-white border-b border-studio-border flex items-center justify-between shadow-sm shrink-0 z-20">
         <div className="flex items-center gap-4">
           <button 
@@ -172,7 +169,7 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Preview Panel */}
+        {/* Device Preview */}
         <main className="flex-1 overflow-y-auto p-8 lg:p-12 flex justify-center bg-studio-bg relative">
           <div className={`transition-all duration-700 ease-in-out ${device === 'mobile' ? 'w-[375px] h-[760px] rounded-[50px] border-[12px] border-studio-dark shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] bg-white overflow-hidden sticky top-0' : 'w-full max-w-4xl h-fit min-h-[600px] rounded-3xl border border-studio-border bg-white shadow-2xl overflow-hidden'}`}>
             
@@ -211,10 +208,10 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
           </div>
         </main>
 
-        {/* Right Distribution Sidebar */}
+        {/* Action Panel */}
         <aside className="w-[400px] bg-white border-l border-studio-border flex flex-col overflow-y-auto p-8 space-y-8 shadow-2xl">
           <section className="space-y-4">
-            <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">拷贝并手动发布</h3>
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">手动拷贝发布</h3>
             <div className="grid grid-cols-1 gap-3">
               <button 
                 onClick={handleCopyArticle}
@@ -229,14 +226,14 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
                     </div>
                     <div className="text-left">
                       <span className={`text-sm font-black block ${copyStatus === 'COPIED' ? 'text-green-700' : 'text-primary'}`}>
-                        {copyStatus === 'COPIED' ? '复制成功！请直接粘贴' : '复制微信/头条富文本'}
+                        {copyStatus === 'COPIED' ? '已修复排版并复制' : '复制微信/头条富文本'}
                       </span>
-                      <p className="text-[10px] text-studio-sub font-bold uppercase tracking-tighter">已修复内边距(Padding)与盒模型</p>
+                      <p className="text-[10px] text-studio-sub font-bold uppercase tracking-tighter">已修复加粗颜色与内边距</p>
                     </div>
                   </div>
                 </div>
                 <div className="mt-2 pt-2 border-t border-primary/10 w-full flex items-center justify-between">
-                   <span className="text-[9px] font-black text-primary/40 uppercase tracking-widest">Deep Inline Mode</span>
+                   <span className="text-[9px] font-black text-primary/40 uppercase tracking-widest">Wechat Native Engine</span>
                    <span className="material-symbols-outlined text-[16px] text-primary/40">verified</span>
                 </div>
               </button>
@@ -247,7 +244,7 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
                   className={`p-4 rounded-2xl border transition-all text-left ${selectedTime === 'now' ? 'border-primary bg-primary/5 ring-4 ring-primary/10' : 'border-studio-border bg-white hover:bg-studio-bg'}`}
                 >
                   <span className="material-symbols-outlined block mb-2 text-primary">bolt</span>
-                  <span className="text-[11px] font-black uppercase tracking-widest block">自动同步</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest block">实时同步</span>
                 </button>
                 <button 
                   onClick={() => setSelectedTime('scheduled')}
@@ -263,10 +260,10 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
           <div className="p-6 bg-blue-50 rounded-[32px] border border-blue-100 space-y-3">
             <div className="flex items-center gap-2 text-blue-600">
                <span className="material-symbols-outlined text-[20px]">info</span>
-               <span className="text-[10px] font-black uppercase tracking-widest">为什么需要“一键复制”？</span>
+               <span className="text-[10px] font-black uppercase tracking-widest">排版兼容性修复</span>
             </div>
             <p className="text-[11px] text-blue-800 leading-relaxed font-medium">
-              微信公众号的编辑器会过滤大部分网页代码。我们通过“深层内联转换器”将 <b>Padding</b>、<b>Border-radius</b> 和 <b>Box-shadow</b> 直接注入 HTML 属性中，确保在任何平台粘贴都能获得 1:1 的视觉还原。
+              根据您的反馈，我们已<b>移除正文内的重复标题</b>，并将加粗字体回归为<b>专业深灰色</b>。同时优化了容器宽度逻辑，解决了内容被缩窄的问题。
             </p>
           </div>
 
@@ -284,7 +281,7 @@ const Publish: React.FC<PublishProps> = ({ content, title, onBack, onSuccess }) 
               ) : (
                 <>
                   <span className="material-symbols-outlined group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">rocket_launch</span>
-                  <span className="uppercase tracking-widest text-sm">确认多端发布</span>
+                  <span className="uppercase tracking-widest text-sm">发布至已关联平台</span>
                 </>
               )}
             </button>
