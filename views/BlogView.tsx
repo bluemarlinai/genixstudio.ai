@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BlogPost } from '../types';
 import { ApiService } from '../api';
@@ -27,7 +26,7 @@ const BlogView: React.FC<BlogViewProps> = ({ onBack }) => {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 cursor-pointer" onClick={onBack}>
             <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-studio-bg shadow-sm">
-              <img src="assets/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-lg font-black tracking-tight text-studio-dark">Genix Studio</span>
           </div>
@@ -168,7 +167,7 @@ const BlogView: React.FC<BlogViewProps> = ({ onBack }) => {
         <div className="max-w-[80rem] mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md overflow-hidden flex items-center justify-center bg-studio-bg">
-              <img src="assets/logo.png" alt="Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-sm font-black tracking-tight text-slate-900">Genix Studio</span>
           </div>

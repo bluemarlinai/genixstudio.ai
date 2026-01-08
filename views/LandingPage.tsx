@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ViewState } from '../types';
 
@@ -36,7 +35,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       name: '陈静仪',
       role: '资深科技博主',
       avatar: 'https://picsum.photos/seed/user1/100/100',
-      content: 'Genix Studio 彻底改变了我的写作流。以前排版和分发要花掉我半天时间，现在 AI 帮我处理了一切，我只需要专注于我的思考。',
+      content: 'Genix Studio 彻底改变了我的写作流。以前排版 and 分发要花掉我半天时间，现在 AI 帮我处理了一切，我只需要专注于我的思考。',
       platform: '微信公众号'
     },
     {
@@ -62,7 +61,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         <div className="w-full px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-primary/10">
-              <img src="assets/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Genix Studio Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tight text-studio-dark">Genix Studio</span>
           </div>
@@ -287,7 +286,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             <div className="space-y-6 max-w-sm">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white/5">
-                  <img src="assets/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                  <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="text-lg font-black tracking-tight">Genix Studio</span>
               </div>
