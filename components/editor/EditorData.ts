@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { BackgroundPreset, DecorationPreset, BrandPreset, SnippetPreset } from './EditorTypes';
 
 // 新增底纹分类接口（用于 LeftSidebar 渲染逻辑参考）
@@ -85,17 +84,17 @@ export const decorationPresets: DecorationPreset[] = [
   {
     id: 'dec-follow-1',
     name: '社交关注引导',
-    template: `<div class="decoration-block" style="margin: 40px 0; border: 2px solid #137fec; border-radius: 24px; padding: 20px; display: flex; justify-content: space-between; align-items: center;"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 40px; height: 40px; background: #e7f2fd; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><span class="material-symbols-outlined" style="color: #137fec; font-size: 24px;">rss_feed</span></div><div><p style="margin: 0; font-size: 14px; font-weight: 900; color: #1a1a1a;">持续获取深度见解</p><p style="margin: 0; font-size: 11px; color: #617589; font-weight: 700;">每周更新 AI 与产品深度干货</p></div></div><button style="background: #137fec; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 900; cursor: pointer;">+ 立即关注</button></div>`,
+    template: `<div class="decoration-block" style="margin: 40px 0; border: 2px solid #137fec; border-radius: 24px; padding: 20px; display: flex; justify-content: space-between; align-items: center;"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 40px; height: 40px; background: #e7f2fd; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><span class="material-symbols-outlined" style="color: #137fec; font-size: 24px;">rss_feed</span></div><div><p style="margin: 0; font-size: 14px; font-weight: 900; color: #1a1a1a;">持续获取深度见解</p><p style="margin: 0; font-size: 11px; color: #617589; font-weight: 700;">每周更新 AI 与 product 深度干货</p></div></div><button style="background: #137fec; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 900; cursor: pointer;">+ 立即关注</button></div>`,
     icon: 'add_reaction'
   }
 ];
 
 export const brandPresets: BrandPreset[] = [
-  { id: 'b-0', name: '无品牌', component: null, icon: 'block' },
+  { id: 'b-0', name: '无品牌', component: '', icon: 'block' },
   { 
     id: 'b-1', 
     name: 'Genix 官方', 
-    component: `<div style="padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(19,127,236,0.1);"><div style="display: flex; items-center: center; gap: 8px;"><div style="width: 24px; height: 24px; background: #137fec; border-radius: 6px;"></div><span style="font-weight: 900; font-size: 14px; color: #137fec; letter-spacing: 1px;">GENIX STUDIO</span></div><span style="font-size: 10px; font-weight: 700; color: #cbd5e1; letter-spacing: 2px;">DIGITAL INSIGHTS</span></div>`, 
+    component: `<div style="padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(19,127,236,0.1);"><div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; background: #137fec; border-radius: 6px;"></div><span style="font-weight: 900; font-size: 14px; color: #137fec; letter-spacing: 1px;">GENIX STUDIO</span></div><span style="font-size: 10px; font-weight: 700; color: #cbd5e1; letter-spacing: 2px;">DIGITAL INSIGHTS</span></div>`, 
     icon: 'verified'
   },
   { 

@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditor } from '@tiptap/react';
-import { Node, mergeAttributes } from '@tiptap/core';
+import { Node, Mark, mergeAttributes } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import BubbleMenu from '@tiptap/extension-bubble-menu';
 import Bold from '@tiptap/extension-bold';
 import Italic from '@tiptap/extension-italic';
 import Strike from '@tiptap/extension-strike';
@@ -21,6 +20,36 @@ import { bgPresets, decorationPresets, brandPresets, snippetPresets } from '../c
 import LeftSidebar from '../components/editor/LeftSidebar';
 import RightSidebar from '../components/editor/RightSidebar';
 import EditorWorkspace from '../components/editor/EditorWorkspace';
+import { GoogleGenAI } from "@google/genai";
+
+const STORAGE_DRAFT_KEY = 'genix_editor_draft';
+
+const SpanMark = Mark.create({
+  name: 'span',
+  priority: 100,
+  addAttributes() {
+    return {
+      style: {
+        default: null,
+        parseHTML: element => element.getAttribute('style'),
+        renderHTML: attributes => {
+          if (!attributes.style) return {};
+          return { style: attributes.style };
+        },
+      },
+      class: {
+        default: null,
+        parseHTML: element => element.getAttribute('class'),
+        renderHTML: attributes => {
+          if (!attributes.class) return {};
+          return { class: attributes.class };
+        },
+      },
+    };
+  },
+  parseHTML() { return [{ tag: 'span' }]; },
+  renderHTML({ HTMLAttributes }) { return ['span', mergeAttributes(HTMLAttributes), 0]; },
+});
 
 const Div = Node.create({
   name: 'div',
@@ -36,16 +65,6 @@ const Div = Node.create({
     }]; 
   },
   renderHTML({ HTMLAttributes }) { return ['div', mergeAttributes(HTMLAttributes), 0]; },
-});
-
-const Span = Node.create({
-  name: 'span',
-  group: 'inline',
-  inline: true,
-  content: 'text*', 
-  addAttributes() { return { class: { default: null }, style: { default: null } }; },
-  parseHTML() { return [{ tag: 'span' }]; },
-  renderHTML({ HTMLAttributes }) { return ['span', mergeAttributes(HTMLAttributes), 0]; },
 });
 
 const Image = Node.create({
@@ -68,54 +87,229 @@ interface EditorProps {
   onBack: () => void;
   onPublish: (content: string, title: string, bg: BackgroundPreset, brand: BrandPreset) => void;
   onNavigateUpgrade: () => void;
+  autoOpenAiModal?: boolean;
 }
 
-const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
-  const [title, setTitle] = useState('🎨太酷啦！NotebookLM生成PPT也太丝滑了！这效果直接拿去毕业答辩/路演，稳了！🏆');
-  const [summary, setSummary] = useState('深度测评 Google 最新黑科技 NotebookLM 的 PPT 自动化生成能力...');
+const EditorView: React.FC<EditorProps> = ({ onBack, onPublish, autoOpenAiModal }) => {
+  const [title, setTitle] = useState('未命名文章');
+  const [summary, setSummary] = useState('');
   const [coverImage, setCoverImage] = useState('https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=800');
   const [activeTab, setActiveTab] = useState<SidebarTab>('BACKGROUND');
-  
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
   const [isRightCollapsed, setIsRightCollapsed] = useState(false);
-  
-  const [activeBg, setActiveBg] = useState<BackgroundPreset>(bgPresets[1]);
+  const [activeBg, setActiveBg] = useState<BackgroundPreset>(bgPresets[0]);
   const [activeBrand, setActiveBrand] = useState<BrandPreset>(brandPresets[0]);
+  
+  const [isAiModalOpen, setIsAiModalOpen] = useState(autoOpenAiModal || false);
+  const [aiIdea, setAiIdea] = useState('');
+  const [aiLoadingStage, setAiLoadingStage] = useState<'IDLE' | 'TITLES' | 'GENERATING'>('IDLE');
+  const [suggestedTitles, setSuggestedTitles] = useState<string[]>([]);
+  const [aiConfigError, setAiConfigError] = useState<string | null>(null);
+
+  const [isGeneratingCover, setIsGeneratingCover] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isTitleCopied, setIsTitleCopied] = useState(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit, Bold, Italic, Strike, Code,
+      Heading.configure({ levels: [1, 2, 3] }),
+      BulletList, OrderedList, ListItem, Blockquote, HorizontalRule,
+      Div, SpanMark, Image, 
+      Placeholder.configure({ placeholder: '在此处落笔您的灵感，或者点击“AI一键创作”快速生成内容...' })
+    ],
+    content: '',
+    editorProps: { attributes: { class: 'prose prose-sm prose-blue max-w-none focus:outline-none' } },
+    onUpdate({ editor }) {
+      saveToStorage(editor.getHTML());
+    }
+  });
+
+  const getAIConfig = () => {
+    const userKey = localStorage.getItem('user_gemini_api_key');
+    const userModel = localStorage.getItem('user_gemini_model');
+    const apiKey = userKey || process.env.API_KEY;
+    const model = userModel || 'gemini-3-flash-preview';
+    return { apiKey, model };
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_DRAFT_KEY);
+    if (saved) {
+      try {
+        const draft = JSON.parse(saved);
+        if (draft.title) setTitle(draft.title);
+        if (draft.summary) setSummary(draft.summary);
+        if (draft.coverImage) setCoverImage(draft.coverImage);
+        if (draft.bgId) {
+          const matchedBg = bgPresets.find(b => b.id === draft.bgId);
+          if (matchedBg) setActiveBg(matchedBg);
+        }
+        if (draft.brandId) {
+          const matchedBrand = brandPresets.find(b => b.id === draft.brandId);
+          if (matchedBrand) setActiveBrand(matchedBrand);
+        }
+        if (editor && draft.content) {
+          editor.commands.setContent(draft.content);
+        }
+      } catch (e) { console.error("Failed to restore draft", e); }
+    }
+  }, [editor]);
+
+  useEffect(() => {
+    saveToStorage();
+  }, [title, summary, coverImage, activeBg, activeBrand]);
+
+  const saveToStorage = (currentContent?: string) => {
+    const content = currentContent || editor?.getHTML() || '';
+    const draft = {
+      title, summary, coverImage,
+      bgId: activeBg.id, brandId: activeBrand.id, content,
+      updatedAt: new Date().getTime()
+    };
+    localStorage.setItem(STORAGE_DRAFT_KEY, JSON.stringify(draft));
+  };
+
+  const handleCopyTitle = () => {
+    navigator.clipboard.writeText(title).then(() => {
+      setIsTitleCopied(true);
+      setTimeout(() => setIsTitleCopied(false), 2000);
+    });
+  };
+
+  const handleTitleDoubleClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    e.currentTarget.select();
+  };
+
+  const handleGenerateTitles = async () => {
+    if (!aiIdea.trim()) return;
+    const { apiKey, model } = getAIConfig();
+    if (!apiKey) {
+      setAiConfigError('未检测到有效的 API Key。请前往“个人设置”配置您的模型参数。');
+      return;
+    }
+    setAiLoadingStage('TITLES');
+    setAiConfigError(null);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: `你是一位专业的新媒体运营总监，擅长写爆款标题。请根据用户的想法：'${aiIdea}'，给出 4 个具有吸引力的文章标题，涵盖不同的风格。请仅返回 JSON 数组格式，例如 ["标题1", "标题2", "标题3", "标题4"]`,
+        config: { responseMimeType: "application/json" }
+      });
+      const titles = JSON.parse(response.text || "[]");
+      setSuggestedTitles(titles);
+    } catch (err) {
+      console.error(err);
+      setAiConfigError('AI 标题生成失败。请确认 API Key 是否有效。');
+    } finally { setAiLoadingStage('IDLE'); }
+  };
+
+  const handleGenerateFullArticle = async (selectedTitle: string) => {
+    const { apiKey, model } = getAIConfig();
+    if (!apiKey) return;
+    setAiLoadingStage('GENERATING');
+    setTitle(selectedTitle);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: `你是一位全能的数字内容创作者。请为标题为《${selectedTitle}》的文章生成深度且排版优美的正文内容。要求：1. 使用 HTML 格式。2. 内容要长且深度。3. 请根据文章主题建议一个背景底纹 ID。请返回如下 JSON 格式：{"html": "...", "summary": "...", "suggestedBgId": "w-grid-1"}`,
+        config: { responseMimeType: "application/json" }
+      });
+      const result = JSON.parse(response.text || "{}");
+      editor?.commands.setContent(result.html);
+      setSummary(result.summary);
+      const matchedBg = bgPresets.find(b => b.id === result.suggestedBgId);
+      if (matchedBg) setActiveBg(matchedBg);
+      // 同时触发封面生成
+      handleGenerateCover(selectedTitle, result.summary);
+      saveToStorage(result.html);
+      setIsAiModalOpen(false);
+      setAiIdea('');
+      setSuggestedTitles([]);
+    } catch (err) {
+      console.error(err);
+      alert('AI 文章生成失败，请重试。');
+    } finally { setAiLoadingStage('IDLE'); }
+  };
+
+  const handleGenerateCover = async (overrideTitle?: string, overrideSummary?: string) => {
+    const currentTitle = overrideTitle || title;
+    const currentSummary = overrideSummary || summary || editor?.getText().slice(0, 100) || "";
+    if (!currentTitle) return;
+
+    const { apiKey } = getAIConfig();
+    if (!apiKey) return;
+
+    setIsGeneratingCover(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      
+      // Step 1: 分析并生成绘图提示词
+      const promptResponse = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Analyze the following article title and summary to create a professional, artistic, and cinematic image generation prompt. 
+        Title: "${currentTitle}"
+        Summary: "${currentSummary}"
+        Requirements: The style should be modern, clean, and high-end editorial. No text in image. Focus on metaphors or symbolic imagery. Output only the English prompt.`,
+      });
+      const visualPrompt = promptResponse.text || currentTitle;
+
+      // Step 2: 调用图像生成模型
+      const imageResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: [{ text: visualPrompt }],
+        config: {
+          imageConfig: {
+            aspectRatio: "16:9",
+          }
+        }
+      });
+
+      for (const part of imageResponse.candidates[0].content.parts) {
+        if (part.inlineData) {
+          const base64Data = part.inlineData.data;
+          setCoverImage(`data:image/png;base64,${base64Data}`);
+          break;
+        }
+      }
+    } catch (err) {
+      console.error("Cover generation failed", err);
+      alert("封面生成失败，请检查 API 状态。");
+    } finally {
+      setIsGeneratingCover(false);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    const content = editor?.getText();
+    if (!content || content.length < 50) return;
+
+    const { apiKey, model } = getAIConfig();
+    if (!apiKey) return;
+
+    setIsGeneratingSummary(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: `请根据以下文章内容，总结一段 100 字以内的摘要，要求语气专业且吸引人阅读：\n\n${content}`,
+      });
+      setSummary(response.text || "");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
 
   const toggleZenMode = () => {
     setIsLeftCollapsed(!isLeftCollapsed);
     setIsRightCollapsed(!isRightCollapsed);
   };
 
-  const longContent = `
-    <div class="article-meta" style="margin-bottom: 32px; font-family: -apple-system-font, system-ui, sans-serif;">
-      <p style="margin: 0; font-size: 15px; color: #888888; letter-spacing: 0.5px; line-height: 1.4;">
-        GENIX INSIGHTS <span style="margin: 0 4px; color: #576b95; font-weight: 500;">老李的AI江湖</span>
-      </p>
-      <p style="margin: 4px 0 0; font-size: 14px; color: #b2b2b2; line-height: 1.4;">2026年1月10日 12:32</p>
-    </div>
-
-    <p style="text-align: center; color: #1e293b; font-weight: 700; letter-spacing: 0.15em; font-size: 13px; margin: 40px 0 20px; text-transform: uppercase;">TECH REVIEW • AI PRODUCTIVITY • 2024</p>
-    
-    <p style="line-height: 1.8; letter-spacing: 0.03em; margin-bottom: 24px; color: #333;">最近不少小伙伴被 Google 的 <strong>NotebookLM</strong> 刷屏了，但绝大多数人只停留在“播客生成”和“文档摘要”上。其实，它隐藏的 <strong>PPT 结构化生成能力</strong> 才是真正的效率核武！</p>
-    
-    <div class="decoration-block" style="margin: 40px 0; padding: 40px 24px; border-radius: 24px; border: 1px dashed #137fec30; background: rgba(19, 127, 236, 0.02); text-align: center; position: relative; box-sizing: border-box;">
-      <div style="font-size: 32px; color: #137fec; opacity: 0.3; margin-bottom: 16px; font-weight: 900; line-height: 1;">✨</div>
-      <p style="font-size: 18px; font-weight: 700; color: #333; line-height: 1.6; margin: 0; letter-spacing: -0.01em;">“以前做一个毕业答辩 PPT 要掉半层皮，现在我把论文丢进去，NotebookLM 直接给了我整套逻辑骨架，丝滑得不像话。”</p>
-    </div>
-  `;
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit, Bold, Italic, Strike, Code, BubbleMenu,
-      Heading.configure({ levels: [1, 2, 3] }),
-      BulletList, OrderedList, ListItem, Blockquote, HorizontalRule,
-      Div, Span, Image, 
-      Placeholder.configure({ placeholder: '在此处落笔您的灵感...' })
-    ],
-    content: longContent,
-    editorProps: { attributes: { class: 'prose prose-sm prose-blue max-w-none focus:outline-none' } },
-  });
+  const isZenMode = isLeftCollapsed && isRightCollapsed;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-studio-bg font-sans overflow-hidden">
@@ -123,23 +317,52 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="p-1.5 hover:bg-studio-bg rounded-lg transition-colors text-studio-sub"><span className="material-symbols-outlined text-[20px]">arrow_back</span></button>
           <div className="h-4 w-px bg-studio-border"></div>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className="bg-transparent border-none text-[11px] font-black text-studio-dark w-[450px] focus:ring-0 p-0" placeholder="文章标题..." />
+          <div className="flex items-center gap-1 group/title">
+            <input 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              onDoubleClick={handleTitleDoubleClick}
+              className="bg-transparent border-none text-[11px] font-black text-studio-dark w-[350px] focus:ring-0 p-0" 
+              placeholder="文章标题..." 
+            />
+            <button 
+              onClick={handleCopyTitle}
+              className={`p-1 rounded-md transition-all ${isTitleCopied ? 'text-emerald-500 bg-emerald-50' : 'text-studio-sub hover:bg-studio-bg hover:text-primary opacity-0 group-hover/title:opacity-100'}`}
+              title="复制标题"
+            >
+              <span className="material-symbols-outlined text-[16px]">{isTitleCopied ? 'done' : 'content_copy'}</span>
+            </button>
+          </div>
         </div>
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
-           <button onClick={toggleZenMode} className={`flex items-center gap-2 px-5 py-1.5 rounded-full border transition-all duration-500 hover:scale-[1.03] active:scale-95 group ${isLeftCollapsed && isRightCollapsed ? 'bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/10' : 'bg-white text-studio-sub border-studio-border hover:text-primary hover:border-primary/20'}`}>
-             <span className="material-symbols-outlined text-[18px] transition-transform duration-500 group-hover:rotate-180">{isLeftCollapsed && isRightCollapsed ? 'fullscreen_exit' : 'fullscreen'}</span>
-             <span className="text-[9px] font-black uppercase tracking-[0.2em] hidden md:block">{isLeftCollapsed && isRightCollapsed ? '退出全屏' : '禅定模式'}</span>
-           </button>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => onPublish(editor?.getHTML() || '', title, activeBg, activeBrand)} className="px-6 py-2 bg-primary text-white text-[10px] font-black rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">
-            预览并发布文章
+
+        {/* 禅意模式切换按钮 */}
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <button 
+            onClick={toggleZenMode}
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full border transition-all duration-500 group relative overflow-hidden ${
+              isZenMode 
+                ? 'bg-primary text-white border-primary shadow-xl shadow-primary/20 scale-105' 
+                : 'bg-white text-studio-sub border-studio-border hover:border-primary/40 hover:text-primary'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-[20px] transition-transform duration-700 ${isZenMode ? 'rotate-180' : 'rotate-0'}`}>
+              {isZenMode ? 'fullscreen_exit' : 'fullscreen'}
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">禅意模式</span>
+            {isZenMode && (
+              <span className="absolute inset-0 bg-white/10 animate-pulse"></span>
+            )}
           </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => setIsAiModalOpen(true)} className="px-6 py-2 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-all flex items-center gap-2 h-[36px]"><span className="material-symbols-outlined text-[18px] animate-pulse">auto_awesome</span>AI 一键创作</button>
+          <button onClick={() => onPublish(editor?.getHTML() || '', title, activeBg, activeBrand)} className="px-6 py-2 bg-primary text-white text-[10px] font-black rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest h-[36px]">预览并发布文章</button>
         </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden relative">
-        <div className={`transition-all duration-500 ease-in-out overflow-hidden border-r border-studio-border bg-white ${isLeftCollapsed ? 'w-0 opacity-0' : 'w-[240px] opacity-100'}`}>
+        <div className={`transition-all duration-500 ease-in-out overflow-hidden border-r border-studio-border bg-white ${isLeftCollapsed ? 'w-0 opacity-0 pointer-events-none' : 'w-[240px] opacity-100'}`}>
           <LeftSidebar 
             activeTab={activeTab} setActiveTab={setActiveTab}
             bgPresets={bgPresets} activeBg={activeBg} setActiveBg={setActiveBg}
@@ -147,24 +370,73 @@ const EditorView: React.FC<EditorProps> = ({ onBack, onPublish }) => {
             brandPresets={brandPresets} activeBrand={activeBrand} setActiveBrand={setActiveBrand}
             snippetPresets={snippetPresets} onInsertSnippet={(s) => {
               if (!editor) return;
-              const cleanContent = s.content.replace(/>\s+</g, '><'); 
-              if (s.type === 'HEADER') editor.chain().focus().insertContentAt(0, cleanContent).run();
-              else editor.chain().focus().insertContentAt(editor.state.doc.content.size, cleanContent).run();
+              if (s.type === 'HEADER') editor.chain().focus().insertContentAt(0, s.content).run();
+              else editor.chain().focus().insertContentAt(editor.state.doc.content.size, s.content).run();
             }}
           />
         </div>
-        
         <div className="flex-1 relative overflow-hidden flex flex-col">
-           <EditorWorkspace editor={editor} activeBg={activeBg} activeBrand={activeBrand} />
+          <EditorWorkspace editor={editor} activeBg={activeBg} activeBrand={activeBrand} />
         </div>
-
-        <div className={`transition-all duration-500 ease-in-out overflow-hidden border-l border-studio-border bg-white ${isRightCollapsed ? 'w-0 opacity-0' : 'w-[260px] opacity-100'}`}>
+        <div className={`transition-all duration-500 ease-in-out overflow-hidden border-l border-studio-border bg-white ${isRightCollapsed ? 'w-0 opacity-0 pointer-events-none' : 'w-[260px] opacity-100'}`}>
           <RightSidebar 
-            coverImage={coverImage} isGeneratingCover={false} onGenerateCover={() => {}}
-            summary={summary} setSummary={setSummary} isGeneratingSummary={false} onGenerateSummary={() => {}}
+            coverImage={coverImage} 
+            isGeneratingCover={isGeneratingCover} 
+            onGenerateCover={() => handleGenerateCover()} 
+            summary={summary} 
+            setSummary={setSummary} 
+            isGeneratingSummary={isGeneratingSummary} 
+            onGenerateSummary={handleGenerateSummary} 
           />
         </div>
       </div>
+
+      {isAiModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsAiModalOpen(false)}></div>
+          <div className="relative bg-white w-full max-w-2xl rounded-[40px] shadow-2xl p-10 space-y-8 animate-in zoom-in-95 duration-300">
+            <header className="text-center space-y-2">
+               <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4"><span className="material-symbols-outlined text-4xl">auto_awesome</span></div>
+               <h2 className="text-2xl font-black text-studio-dark">AI 智能辅助创作</h2>
+               <p className="text-xs text-studio-sub font-medium">输入你的想法，Genix 将为你构建完整的叙事框架与排版。</p>
+            </header>
+
+            {aiLoadingStage === 'GENERATING' ? (
+              <div className="py-20 text-center space-y-6">
+                <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto"></div>
+                <p className="text-sm font-black text-studio-dark animate-pulse">正在深度构建内容架构...</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {aiConfigError && (
+                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-3">
+                    <span className="material-symbols-outlined text-rose-500">error</span>
+                    <p className="text-[10px] text-rose-700 font-bold">{aiConfigError}</p>
+                  </div>
+                )}
+                <textarea value={aiIdea} onChange={(e) => setAiIdea(e.target.value)} className="w-full bg-studio-bg border-none rounded-3xl p-5 text-sm font-medium focus:ring-2 ring-indigo-500/20 h-32 resize-none" placeholder="例如：写一篇关于远程办公如何提升工作效率的文章..." />
+                {suggestedTitles.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-2">
+                    {suggestedTitles.map((t, i) => (
+                      <button key={i} onClick={() => handleGenerateFullArticle(t)} className="w-full text-left p-4 bg-indigo-50 hover:bg-indigo-100 rounded-2xl border border-indigo-100 transition-all flex justify-between">
+                        <span className="text-xs font-black text-indigo-900">{t}</span>
+                        <span className="material-symbols-outlined text-indigo-300">arrow_forward</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <button onClick={handleGenerateTitles} disabled={!aiIdea || aiLoadingStage === 'TITLES'} className="w-full py-4 bg-indigo-600 text-white rounded-[24px] font-black text-xs uppercase tracking-widest shadow-xl disabled:opacity-50 flex items-center justify-center gap-2">
+                    {aiLoadingStage === 'TITLES' ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <span className="material-symbols-outlined">magic_button</span>}获取爆款标题
+                  </button>
+                )}
+              </div>
+            )}
+            <p className="text-center text-[9px] text-studio-sub font-bold uppercase tracking-widest">
+              基于 {getAIConfig().model.replace(/-latest|-preview|-reasoner/g, '').toUpperCase()} 引擎驱动
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

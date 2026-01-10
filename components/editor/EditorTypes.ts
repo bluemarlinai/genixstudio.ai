@@ -1,6 +1,4 @@
 
-import React from 'react';
-
 export type BackgroundPreset = {
   id: string;
   name: string;
@@ -20,7 +18,7 @@ export type DecorationPreset = {
 export type BrandPreset = {
   id: string;
   name: string;
-  component: React.ReactNode;
+  component: string;
   icon: string; // 改为图标名
 };
 
