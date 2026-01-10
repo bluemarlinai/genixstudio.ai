@@ -1,63 +1,124 @@
 
+import React from 'react';
 import { BackgroundPreset, DecorationPreset, BrandPreset, SnippetPreset } from './EditorTypes';
 
+// 新增底纹分类接口（用于 LeftSidebar 渲染逻辑参考）
+export interface BackgroundCategory {
+  title: string;
+  items: BackgroundPreset[];
+}
+
 export const bgPresets: BackgroundPreset[] = [
-  { id: 'w-1', name: '纯净白', class: 'bg-white', thumbnail: 'palette' },
-  { id: 'w-2', name: '极简点阵', style: { background: '#ffffff', backgroundImage: 'radial-gradient(#137fec15 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }, thumbnail: 'grid_view' },
-  { id: 'w-3', name: '复古书页', style: { background: '#fcfaf2', backgroundImage: 'radial-gradient(#e1e1e1 0.5px, transparent 0.5px)', backgroundSize: '12px 12px' }, thumbnail: 'description' },
-  { id: 'w-4', name: '小寒初雪', style: { background: '#ffffff', backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(255,255,255,0.9)), url("https://images.unsplash.com/photo-1418985991508-e47386d96a71?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'ac_unit' },
-  { id: 'w-5', name: '晨曦薄雾', style: { background: 'linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%)', backgroundImage: 'url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'filter_hdr' },
-  { id: 'w-6', name: '浅色胡桃', style: { background: '#fdfbf7', backgroundImage: 'url("https://images.unsplash.com/photo-1516550817367-63d148c3a051?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'texture' },
-  { id: 'w-7', name: '莫兰迪绿', style: { background: '#e2e7e1', backgroundImage: 'url("https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'eco' },
-  { id: 'w-8', name: '数学方格', style: { background: 'white', backgroundImage: 'linear-gradient(#f1f5f9 1.5px, transparent 1.5px), linear-gradient(90deg, #f1f5f9 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }, thumbnail: 'grid_4x4' },
-  { id: 'w-9', name: '米色亚麻', style: { background: '#f5f5f0', backgroundImage: 'url("https://images.unsplash.com/photo-1586075010633-247fe1bd67a7?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'texture' },
-  { id: 'w-10', name: '科技律动', style: { background: '#f8fafc', backgroundImage: 'repeating-linear-gradient(45deg, #137fec05 0px, #137fec05 1px, transparent 1px, transparent 10px)', backgroundSize: '100% 100%' }, thumbnail: 'dynamic_form' },
-  { id: 'w-11', name: '深海极客', style: { background: '#0f172a', backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)', backgroundSize: '24px 24px' }, thumbnail: 'dark_mode' },
-  { id: 'w-12', name: '和纸纤维', style: { background: '#fffcf5', backgroundImage: 'url("https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'vaping_rooms' },
-  { id: 'w-13', name: '水墨晕染', style: { background: '#ffffff', backgroundImage: 'url("https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'format_paint' },
-  { id: 'w-14', name: '极简水泥', style: { background: '#e5e7eb', backgroundImage: 'url("https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'domain' },
-  { id: 'w-15', name: '奶油草莓', style: { background: '#fff5f5', backgroundImage: 'radial-gradient(#feb2b2 0.5px, transparent 0.5px)', backgroundSize: '15px 15px' }, thumbnail: 'bubble_chart' },
-  { id: 'w-16', name: '蓝调商务', style: { background: '#f0f9ff', backgroundImage: 'linear-gradient(rgba(19, 127, 236, 0.05) 1px, transparent 1px)', backgroundSize: '100% 40px' }, thumbnail: 'table_rows' },
-  { id: 'w-17', name: '沙丘幻境', style: { background: '#fafaf9', backgroundImage: 'url("https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'landscape' },
-  { id: 'w-18', name: '抽象几何', style: { background: '#ffffff', backgroundImage: 'url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'category' },
-  { id: 'w-19', name: '深空繁星', style: { background: '#020617', backgroundImage: 'url("https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&q=80&w=1200")', backgroundSize: 'cover' }, thumbnail: 'star' },
-  { id: 'w-20', name: '日落大道', style: { background: '#fff7ed', backgroundImage: 'linear-gradient(to bottom, #fff7ed, #ffedd5)', backgroundSize: '100% 100%' }, thumbnail: 'wb_sunny' }
+  // --- 1. 极简网格系列 (Minimalist & Grids) ---
+  { id: 'w-1', name: '纯净白', class: 'bg-white', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-grid-1', name: '数学点阵', style: { background: '#ffffff', backgroundImage: 'radial-gradient(#137fec15 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }, thumbnail: 'https://images.unsplash.com/photo-1508921340878-ba53e1f016ec?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-grid-2', name: '工程坐标', style: { backgroundColor: '#f8fafc', backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)', backgroundSize: '20px 20px' }, thumbnail: 'https://images.unsplash.com/photo-1518655061710-5ccf392c275a?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-grid-3', name: '毫米方格', style: { background: '#ffffff', backgroundImage: 'linear-gradient(#f1f5f9 1px, transparent 1px), linear-gradient(90deg, #f1f5f9 1px, transparent 1px)', backgroundSize: '8px 8px' }, thumbnail: 'https://www.transparenttextures.com/patterns/grid-me.png' },
+
+  // --- 2. 纸张与有机纹理 (Paper & Organic) ---
+  { id: 'w-paper-1', name: '重磅纤维纸', style: { backgroundColor: '#fcfaf2', backgroundImage: 'url("https://www.transparenttextures.com/patterns/rice-paper-2.png")' }, thumbnail: 'https://images.unsplash.com/photo-1586075010633-247fe1bd6e88?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-linen-1', name: '轻克重亚麻', style: { backgroundColor: '#f9f9f9', backgroundImage: 'url("https://www.transparenttextures.com/patterns/linen.png")' }, thumbnail: 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-noise-1', name: '胶片银盐', style: { backgroundColor: '#f5f5f5', backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }, thumbnail: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-texture-1', name: '混凝土灰', style: { backgroundColor: '#efefef', backgroundImage: 'url("https://www.transparenttextures.com/patterns/concrete-wall.png")' }, thumbnail: 'https://www.transparenttextures.com/patterns/concrete-wall.png' },
+
+  // --- 3. 柔和艺术渐变 (Atmospheric Gradients) ---
+  { id: 'w-gradient-1', name: '晨曦', style: { backgroundImage: 'linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)' }, thumbnail: 'https://images.unsplash.com/photo-1557683311-eac922347aa1?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-gradient-2', name: '北欧冷杉', style: { backgroundImage: 'linear-gradient(to top, #f3f4f6 0%, #e2e8f0 100%)' }, thumbnail: 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-gradient-3', name: '薄荷苏打', style: { backgroundImage: 'linear-gradient(120deg, #e0f2f1 0%, #ffffff 100%)' }, thumbnail: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-gradient-4', name: '暮色蔷薇', style: { backgroundImage: 'linear-gradient(120deg, #fdf2f2 0%, #fefce8 100%)' }, thumbnail: 'https://images.unsplash.com/photo-1519750783826-e2420f4d687f?auto=format&fit=crop&q=60&w=300&h=200' },
+
+  // --- 4. 暗黑极客系列 (Dark Mode) ---
+  { id: 'w-dark-1', name: '钛金黑', style: { background: '#111827', color: '#f9fafb' }, thumbnail: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-dark-2', name: '碳纤维方格', style: { background: '#0f172a', backgroundImage: 'linear-gradient(rgba(30, 41, 59, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 41, 59, 0.5) 1px, transparent 1px)', backgroundSize: '30px 30px', color: '#e2e8f0' }, thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-dark-3', name: '午夜点阵', style: { background: '#020617', backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px', color: '#f8fafc' }, thumbnail: 'https://www.transparenttextures.com/patterns/dark-matter.png' },
+
+  // --- 5. 专业出版系列 (Professional Publishing) ---
+  { id: 'w-modern-1', name: '财经周刊', style: { background: '#f0f7ff', borderLeft: '12px solid #137fec' }, thumbnail: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-border-1', name: '画廊框镜', style: { background: '#fff', border: '24px solid #f1f5f9' }, thumbnail: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-accent-1', name: '路透红标', style: { background: '#ffffff', borderLeft: '6px solid #ef4444' }, thumbnail: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&q=60&w=300&h=200' },
+  { id: 'w-accent-2', name: '学术索引', style: { background: '#ffffff', borderTop: '4px solid #111', borderBottom: '1px solid #eee' }, thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=60&w=300&h=200' }
 ];
 
 export const decorationPresets: DecorationPreset[] = [
-  { id: 'dec-1', name: '经典引用', template: `<div class="decoration-block" style="margin: 40px 0; padding: 32px 24px; border-radius: 16px; border: 1px solid #eeeeee; background: #fafafa; position: relative;"><div style="font-size: 32px; color: #137fec; opacity: 0.3; margin-bottom: 12px; font-weight: 900; line-height: 1;">“</div><p style="font-size: 16px; font-weight: 500; color: #444; line-height: 1.8; margin: 0;">在这里输入您的核心引述内容。</p><div style="font-size: 32px; color: #137fec; opacity: 0.3; margin-top: 4px; font-weight: 900; line-height: 1; text-align: right;">”</div></div>`, icon: 'format_quote' },
-  { id: 'dec-2', name: '分步卡片', template: `<div class="decoration-block" style="display: flex; gap: 20px; margin: 32px 0; padding: 24px; background: #fbfbfb; border-radius: 16px; border: 1px solid #f0f0f0; box-sizing: border-box; align-items: flex-start;"><div style="background: #137fec; color: #ffffff; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; flex-shrink: 0; line-height: 1;"><p style="margin:0;">01</p></div><div style="flex: 1;"><h4 style="margin: 0; font-weight: 800; font-size: 17px; color: #1a1a1a; line-height: 1.4;">步骤标题</h4><p style="margin: 8px 0 0; color: #666; font-size: 15px; line-height: 1.6;">详细描述该步骤的操作要点。</p></div></div>`, icon: 'looks_one' },
-  { id: 'dec-3', name: '对比指标', template: `<div class="decoration-block" style="margin: 32px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;"><div style="background: #ffffff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center;"><h5 style="margin: 0 0 8px; font-size: 12px; color: #64748b; font-weight: 800;">指标名称 A</h5><p style="margin: 0; font-size: 24px; font-weight: 900; color: #137fec;">98%</p></div><div style="background: #ffffff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center;"><h5 style="margin: 0 0 8px; font-size: 12px; color: #64748b; font-weight: 800;">指标名称 B</h5><p style="margin: 0; font-size: 24px; font-weight: 900; color: #137fec;">+240</p></div></div>`, icon: 'grid_view' },
-  { id: 'dec-4', name: '蓝条卡片', template: `<div class="decoration-block" style="margin: 40px 0; padding: 32px; background: #ffffff; border: 1px solid #f0f0f0; border-radius: 16px; border-left: 6px solid #137fec;"><h4 style="margin: 0 0 12px; font-weight: 800; color: #1a1a1a; font-size: 14px;">METHODOLOGY / 方法论</h4><p style="margin: 0; font-size: 16px; color: #444; line-height: 1.7;">描述您的工作流程或分析逻辑...</p></div>`, icon: 'view_sidebar' },
-  { id: 'dec-5', name: '毛玻璃金句', template: `<div class="decoration-block" style="margin: 40px 0; padding: 40px 24px; border-radius: 24px; background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(19, 127, 236, 0.2); text-align: center;"><p style="font-size: 20px; font-weight: 800; color: #137fec; margin: 0;">“用灵魂书写，用技术点睛。”</p></div>`, icon: 'blur_on' },
-  { id: 'dec-6', name: '暗色 Takeaway', template: `<div class="decoration-block" style="margin: 32px 0; padding: 32px; background: #1e293b; border-radius: 20px; color: #ffffff;"><h4 style="margin: 0 0 12px; font-weight: 800; font-size: 18px; color: #38bdf8;">KEY TAKEAWAY</h4><p style="margin: 0; font-size: 15px; color: #94a3b8; line-height: 1.7;">在这里总结核心结论。</p></div>`, icon: 'brightness_4' },
-  { id: 'dec-7', name: '彩色标签组', template: `<div class="decoration-block" style="display: flex; gap: 8px; margin: 24px 0;"><span style="padding: 4px 12px; border-radius: 99px; background: #eff6ff; color: #1d4ed8; font-size: 12px; font-weight: 700;"># AI创作</span><span style="padding: 4px 12px; border-radius: 99px; background: #ecfdf5; color: #047857; font-size: 12px; font-weight: 700;"># 效率</span></div>`, icon: 'label' },
-  { id: 'dec-8', name: '图片拼贴', template: `<div class="decoration-block" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin: 32px 0;"><img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=400" style="width:100%; border-radius:12px;"><img src="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&q=80&w=200" style="width:100%; border-radius:12px;"></div>`, icon: 'dashboard' },
-  { id: 'dec-9', name: '极简分割线', template: `<div class="decoration-block" style="text-align: center; margin: 48px 0;"><div style="display: inline-block; width: 40px; height: 2px; background: #137fec; opacity: 0.3;"></div></div>`, icon: 'horizontal_rule' },
-  { id: 'dec-10', name: '代码视窗', template: `<div class="decoration-block" style="background: #2d3436; border-radius: 12px; padding: 16px; margin: 32px 0; font-family: monospace; color: #fab1a0;"><div style="display: flex; gap: 6px; margin-bottom: 12px;"><div style="width:10px; height:10px; background:#ff7675; border-radius:50%;"></div><div style="width:10px; height:10px; background:#fdcb6e; border-radius:50%;"></div><div style="width:10px; height:10px; background:#55efc4; border-radius:50%;"></div></div><code style="font-size: 14px;">console.log("Hello Genix Studio!");</code></div>`, icon: 'code' },
-  { id: 'dec-11', name: '通知横幅', template: `<div class="decoration-block" style="padding: 12px 20px; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; color: #92400e; font-size: 14px; font-weight: 600; margin: 24px 0;">⚠️ 注意：这是一个关键提示信息。</div>`, icon: 'info' },
-  { id: 'dec-12', name: '圆角渐变按钮', template: `<div class="decoration-block" style="text-align: center; margin: 32px 0;"><a href="#" style="display: inline-block; padding: 12px 32px; background: linear-gradient(to right, #137fec, #6366f1); color: white; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(19, 127, 236, 0.3);">立即点击体验</a></div>`, icon: 'smart_button' },
-  { id: 'dec-13', name: '阴影浮动面板', template: `<div class="decoration-block" style="padding: 32px; background: white; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.04); margin: 40px 0;"><p style="margin: 0; color: #4b5563;">这是一个带有柔和阴影的浮动容器，适合放置总结性文字。</p></div>`, icon: 'shadow' },
-  { id: 'dec-14', name: '问答模块', template: `<div class="decoration-block" style="margin: 32px 0;"><div style="font-weight: 800; color: #137fec; margin-bottom: 8px;">Q: 如何提升创作效率？</div><div style="padding: 16px; background: #f8fafc; border-radius: 12px; color: #334155;">A: 善用 Genix Studio 的 AI 预设模板，减少重复排版工作。</div></div>`, icon: 'quiz' },
-  { id: 'dec-15', name: '三栏特色', template: `<div class="decoration-block" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 32px 0; text-align: center;"><div style="padding: 12px;"><div style="color: #137fec; font-size: 24px; margin-bottom: 8px;">🚀</div><div style="font-size: 12px; font-weight: 800;">极速</div></div><div style="padding: 12px;"><div style="color: #137fec; font-size: 24px; margin-bottom: 8px;">🎨</div><div style="font-size: 12px; font-weight: 800;">美观</div></div><div style="padding: 12px;"><div style="color: #137fec; font-size: 24px; margin-bottom: 8px;">🤖</div><div style="font-size: 12px; font-weight: 800;">智能</div></div></div>`, icon: 'view_column' },
-  { id: 'dec-16', name: '左置图标标题', template: `<div class="decoration-block" style="display: flex; align-items: center; gap: 12px; margin: 32px 0;"><div style="width: 8px; height: 24px; background: #137fec; border-radius: 4px;"></div><h3 style="margin: 0; font-size: 18px; font-weight: 900;">章节主标题</h3></div>`, icon: 'title' },
-  { id: 'dec-17', name: '数据进度条', template: `<div class="decoration-block" style="margin: 24px 0;"><div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 6px;"><span>目标进度</span><span>85%</span></div><div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;"><div style="width: 85%; height: 100%; background: #137fec;"></div></div></div>`, icon: 'show_chart' },
-  { id: 'dec-18', name: 'SVG 装饰波浪', template: `<div class="decoration-block" style="margin: 32px 0;"><svg viewBox="0 0 100 20" style="width: 100%; height: 20px;"><path d="M0 10 Q25 0 50 10 T100 10" fill="none" stroke="#137fec" stroke-width="1" stroke-dasharray="4 2" /></svg></div>`, icon: 'waves' },
-  { id: 'dec-19', name: '品牌认证', template: `<div class="decoration-block" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: #137fec; color: white; border-radius: 8px; font-size: 10px; font-weight: 800; margin: 16px 0;">PRO CONTENT BY GENIX</div>`, icon: 'verified' },
-  { id: 'dec-20', name: '侧边装饰引用', template: `<div class="decoration-block" style="margin: 32px 0; padding-left: 20px; border-left: 1px solid #e2e8f0; position: relative;"><p style="font-size: 15px; font-style: italic; color: #64748b;">“伟大的内容不只是文字，更是视觉的传达。”</p></div>`, icon: 'format_indent_increase' }
+  {
+    id: 'dec-title-1',
+    name: '新锐双行标题',
+    template: `<div class="decoration-block" style="margin: 40px 0; border-left: 10px solid #137fec; padding-left: 20px;"><p style="font-size: 14px; color: #137fec; font-weight: 900; letter-spacing: 2px; margin: 0 0 4px; text-transform: uppercase;">Feature Chapter</p><h2 style="font-size: 28px; font-weight: 900; color: #1a1a1a; margin: 0; line-height: 1.2;">在此处输入章节核心标题</h2></div>`,
+    icon: 'text_fields'
+  },
+  {
+    id: 'dec-quote-1',
+    name: '大师金句',
+    template: `<div class="decoration-block" style="margin: 40px 0; padding: 40px 32px; border-radius: 32px; background: #111; color: white; text-align: center; position: relative; overflow: hidden;"><div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(19,127,236,0.2) 0%, transparent 100%);"></div><p style="font-size: 22px; font-weight: 800; margin: 0; position: relative; z-index: 10; line-height: 1.5; font-style: italic;">“在此输入您的灵魂语录，用深刻的洞察击中人心。”</p></div>`,
+    icon: 'format_quote'
+  },
+  {
+    id: 'dec-data-1',
+    name: '专业数据对比',
+    template: `<div class="decoration-block" style="margin: 40px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;"><div style="background: #ffffff; padding: 28px; border-radius: 24px; border: 1px solid #f0f2f4; text-align: center;"><h5 style="margin: 0 0 10px; font-size: 12px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">传统方案</h5><p style="margin: 0; font-size: 32px; font-weight: 900; color: #cbd5e1;">4.5 Hours</p></div><div style="background: #ffffff; padding: 28px; border-radius: 24px; border: 2px solid #137fec; text-align: center; box-shadow: 0 15px 30px rgba(19,127,236,0.1);"><h5 style="margin: 0 0 10px; font-size: 12px; color: #137fec; font-weight: 800; letter-spacing: 1px;">AI 赋能</h5><p style="margin: 0; font-size: 32px; font-weight: 900; color: #137fec;">20 Mins 🚀</p></div></div>`,
+    icon: 'leaderboard'
+  },
+  {
+    id: 'dec-hr-1',
+    name: '渐变动态分隔',
+    template: `<div class="decoration-block" style="margin: 60px auto; width: 80px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, transparent, #137fec, transparent);"></div>`,
+    icon: 'horizontal_rule'
+  },
+  {
+    id: 'dec-card-1',
+    name: '图标指引卡片',
+    template: `<div class="decoration-block" style="display: flex; gap: 24px; margin: 40px 0; padding: 32px; background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%); border-radius: 24px; border: 1px solid rgba(19, 127, 236, 0.1); align-items: center;"><div style="width: 48px; height: 48px; background: #137fec; color: white; border-radius: 16px; display: flex; items-center: center; justify-content: center; flex-shrink: 0;"><span class="material-symbols-outlined" style="font-size: 28px; line-height: 48px;">lightbulb</span></div><div style="flex: 1;"><h4 style="margin: 0; font-weight: 800; font-size: 18px; color: #1a1a1a;">深度见解</h4><p style="margin: 8px 0 0; color: #64748b; font-size: 15px; line-height: 1.6;">输入您的核心观点描述，通过视觉强调引导阅读。</p></div></div>`,
+    icon: 'auto_awesome'
+  },
+  {
+    id: 'dec-step-1',
+    name: '步骤逻辑引导',
+    template: `<div class="decoration-block" style="margin: 40px 0; display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; align-items: center; gap: 16px;"><div style="width: 28px; height: 28px; background: #137fec; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;">1</div><p style="margin: 0; font-weight: 800; color: #334155; font-size: 16px;">第一阶段：需求分析与洞察</p></div><div style="margin-left: 13px; height: 30px; border-left: 2px dashed #cbd5e1;"></div><div style="display: flex; align-items: center; gap: 16px;"><div style="width: 28px; height: 28px; background: #cbd5e1; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;">2</div><p style="margin: 0; font-weight: 800; color: #94a3b8; font-size: 16px;">第二阶段：原型构建与测试</p></div></div>`,
+    icon: 'reorder'
+  },
+  {
+    id: 'dec-qa-1',
+    name: 'FAQ 问答对',
+    template: `<div class="decoration-block" style="margin: 30px 0; padding: 24px; background: #fdfdfd; border: 1px solid #f0f2f4; border-radius: 20px;"><div style="display: flex; gap: 12px; margin-bottom: 12px;"><span style="color: #137fec; font-weight: 900; font-size: 18px;">Q:</span><p style="margin: 0; font-weight: 800; color: #1e293b; font-size: 16px;">在这里输入读者最关心的问题？</p></div><div style="display: flex; gap: 12px; border-top: 1px solid #f8fafc; padding-top: 12px;"><span style="color: #10b981; font-weight: 900; font-size: 18px;">A:</span><p style="margin: 0; color: #64748b; font-size: 15px; line-height: 1.7;">在这里提供您最专业、详尽的回答逻辑。</p></div></div>`,
+    icon: 'contact_support'
+  },
+  {
+    id: 'dec-follow-1',
+    name: '社交关注引导',
+    template: `<div class="decoration-block" style="margin: 40px 0; border: 2px solid #137fec; border-radius: 24px; padding: 20px; display: flex; justify-content: space-between; align-items: center;"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 40px; height: 40px; background: #e7f2fd; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><span class="material-symbols-outlined" style="color: #137fec; font-size: 24px;">rss_feed</span></div><div><p style="margin: 0; font-size: 14px; font-weight: 900; color: #1a1a1a;">持续获取深度见解</p><p style="margin: 0; font-size: 11px; color: #617589; font-weight: 700;">每周更新 AI 与产品深度干货</p></div></div><button style="background: #137fec; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 900; cursor: pointer;">+ 立即关注</button></div>`,
+    icon: 'add_reaction'
+  }
 ];
 
 export const brandPresets: BrandPreset[] = [
   { id: 'b-0', name: '无品牌', component: null, icon: 'block' },
-  { id: 'b-1', name: '标准水印', component: null, icon: 'branding_watermark' },
-  { id: 'b-2', name: '顶部Logo', component: null, icon: 'align_horizontal_center' },
-  { id: 'b-3', name: '底部印章', component: null, icon: 'approval' }
+  { 
+    id: 'b-1', 
+    name: 'Genix 官方', 
+    component: `<div style="padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(19,127,236,0.1);"><div style="display: flex; items-center: center; gap: 8px;"><div style="width: 24px; height: 24px; background: #137fec; border-radius: 6px;"></div><span style="font-weight: 900; font-size: 14px; color: #137fec; letter-spacing: 1px;">GENIX STUDIO</span></div><span style="font-size: 10px; font-weight: 700; color: #cbd5e1; letter-spacing: 2px;">DIGITAL INSIGHTS</span></div>`, 
+    icon: 'verified'
+  },
+  { 
+    id: 'b-2', 
+    name: '媒体矩阵', 
+    component: `<div style="padding: 24px 40px; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 10px; font-weight: 900; color: #137fec; letter-spacing: 4px;">PRODUCT REVIEW</span><div style="height: 2px; width: 40px; background: #137fec;"></div></div>`, 
+    icon: 'newsmode'
+  }
 ];
 
 export const snippetPresets: SnippetPreset[] = [
-  { id: 's-h-1', name: '大厂测评头图', type: 'HEADER', content: `<div class="snippet-header" style="text-align: center; margin-bottom: 48px;"><img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=800" style="width: 100%; border-radius: 24px; margin-bottom: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);"><span style="display: inline-block; padding: 6px 16px; background: #137fec; color: white; border-radius: 8px; font-weight: 800; font-size: 10px; letter-spacing: 2px;">2024 SPECIAL REPORT</span><h1 style="margin: 20px 0 8px; font-weight: 900; color: #1e293b; font-size: 28px;">AI 生产力实战指南</h1><p style="margin: 0; font-size: 14px; color: #64748b;">深度解析 Google NotebookLM 的结构化创作闭环</p></div>`, icon: 'image_aspect_ratio' },
-  { id: 's-h-2', name: '极简 Meta', type: 'HEADER', content: `<div class="snippet-header" style="margin-bottom: 32px;"><p style="margin: 0; font-size: 14px; color: #888;">GENIX INSIGHTS <span style="margin: 0 4px; color: #137fec; font-weight: 700;">@老李的AI江湖</span></p><p style="margin: 4px 0 0; font-size: 12px; color: #ccc;">2024.10.15 · 阅读 5 分钟</p></div>`, icon: 'format_list_bulleted' },
-  { id: 's-f-1', name: '猜你喜欢列表', type: 'FOOTER', content: `<div class="snippet-footer" style="margin-top: 60px; padding-top: 32px; border-top: 1px solid #eee;"><h4 style="font-size: 14px; font-weight: 900; margin-bottom: 20px; color: #888;">猜你喜欢</h4><div style="display: grid; gap: 16px;"><div style="display: flex; gap: 12px; align-items: center;"><img src="https://images.unsplash.com/photo-1551288049-bbdac8a28a80?auto=format&fit=crop&q=80&w=100&h=100" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;"><div><p style="margin:0; font-size: 14px; font-weight: 700;">NotebookLM 生成 PPT 丝滑教程</p><p style="margin:2px 0 0; font-size: 11px; color: #aaa;">干货 · 12k 阅读</p></div></div><div style="display: flex; gap: 12px; align-items: center;"><img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=100&h=100" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;"><div><p style="margin:0; font-size: 14px; font-weight: 700;">AI 时代，人类作家的生存法则</p><p style="margin:2px 0 0; font-size: 11px; color: #aaa;">思考 · 8.5k 阅读</p></div></div></div></div>`, icon: 'recommend' },
-  { id: 's-f-2', name: '关注二维码引导', type: 'FOOTER', content: `<div class="snippet-footer" style="margin-top: 60px; padding: 40px; background: #f8fafc; border-radius: 24px; text-align: center;"><div style="width: 120px; height: 120px; background: #fff; margin: 0 auto 16px; padding: 10px; border: 1px solid #eee; border-radius: 12px;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=GenixStudio" style="width:100%;"></div><p style="margin:0; font-size: 14px; font-weight: 900; color: #137fec;">扫码关注老李的AI江湖</p><p style="margin:4px 0 0; font-size: 12px; color: #64748b;">回复 "AI" 领取 50G 创作大礼包</p></div>`, icon: 'qr_code_2' },
-  { id: 's-f-3', name: '极简版权印章', type: 'FOOTER', content: `<div class="snippet-footer" style="margin-top: 80px; text-align: center; border-top: 1px solid #eeeeee; padding-top: 32px;"><p style="margin: 0; font-size: 11px; color: #cccccc; letter-spacing: 4px; text-transform: uppercase; font-weight: 800;">POWERED BY GENIX STUDIO</p><p style="margin: 8px 0 0; font-size: 10px; color: #e1e1e1;">ORIGINAL CONTENT © 2024</p></div>`, icon: 'verified_user' }
+  { 
+    id: 's-h-1', 
+    name: '专业测评眉标', 
+    type: 'HEADER', 
+    content: `<section style="margin-bottom: 40px; padding: 24px; border-left: 8px solid #137fec; background: rgba(19,127,236,0.03); border-radius: 4px 24px 24px 4px;"><p style="margin: 0; font-size: 12px; color: #137fec; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px;">Exclusive Report / 独家深度</p><h1 style="font-size: 32px; font-weight: 900; line-height: 1.2; color: #111; margin: 0;">主标题占位：<br/>输入您的震撼结论</h1></section>`, 
+    icon: 'view_headline'
+  },
+  { 
+    id: 's-f-1', 
+    name: '全渠道二维码', 
+    type: 'FOOTER', 
+    content: `<section style="margin-top: 80px; padding: 60px 40px; background: #fdfdfd; border: 1px solid #f0f2f4; border-radius: 40px; text-align: center;"><div style="width: 140px; height: 140px; background: #fff; margin: 0 auto 24px; padding: 12px; border: 1px solid #f0f2f4; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=GenixStudio" style="width: 100%; height: 100%; object-fit: contain;" /></div><p style="margin: 0; font-size: 18px; font-weight: 900; color: #1a1a1a;">欢迎扫码交流</p><p style="margin: 8px 0 0; font-size: 14px; color: #64748b; font-weight: 500;">后台回复 <span style="color: #137fec; font-weight: 800;">“手册”</span> 获取本期干货</p><div style="margin-top: 40px; height: 1px; background: linear-gradient(to right, transparent, #eee, transparent);"></div><p style="margin: 32px 0 0; font-size: 10px; color: #cbd5e1; font-weight: 900; letter-spacing: 5px; text-transform: uppercase;">© 2024 GENIX STUDIO · ALL RIGHTS RESERVED</p></section>`, 
+    icon: 'qr_code_2'
+  }
 ];

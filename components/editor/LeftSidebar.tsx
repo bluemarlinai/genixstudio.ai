@@ -75,7 +75,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     activeBg.id === bg.id ? 'border-primary bg-primary/5 shadow-sm' : 'border-studio-border hover:bg-studio-bg'
                   }`}
                 >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden shrink-0 shadow-sm border border-studio-border/50">
+                  <div className="w-full aspect-[3/2] rounded-lg overflow-hidden shrink-0 shadow-sm border border-studio-border/50">
                     <ThumbnailRenderer value={bg.thumbnail} />
                   </div>
                   <span className="text-[9px] font-black text-studio-dark truncate w-full text-center tracking-tighter px-1">{bg.name}</span>

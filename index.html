@@ -37,6 +37,7 @@
     </script>
     <style>
       body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+      
       .material-symbols-outlined {
         font-family: 'Material Symbols Outlined' !important;
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -52,12 +53,20 @@
         text-rendering: optimizeLegibility;
         -moz-osx-font-smoothing: grayscale;
       }
+      
       .ProseMirror .material-symbols-outlined {
         font-family: 'Material Symbols Outlined' !important;
         font-style: normal !important;
         display: inline-block !important;
+        min-width: 1em;
+        min-height: 1em;
       }
-      .ProseMirror { outline: none !important; min-height: 800px; padding-bottom: 200px; }
+
+      .ProseMirror {
+        outline: none !important;
+        min-height: 800px;
+      }
+      
       .ProseMirror p.is-editor-empty:first-child::before {
         content: attr(data-placeholder);
         float: left;
@@ -65,10 +74,42 @@
         pointer-events: none;
         height: 0;
       }
-      .ProseMirror blockquote { border-left: 4px solid #137fec; padding-left: 1rem; font-style: italic; color: #617589; }
+
+      .bubble-menu {
+        display: flex;
+        background-color: #111418;
+        padding: 4px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .bubble-menu button {
+        border: none;
+        background: none;
+        color: #fff;
+        padding: 6px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .bubble-menu button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .bubble-menu button.is-active {
+        color: #137fec;
+        background-color: rgba(19, 127, 236, 0.1);
+      }
+
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 <script type="importmap">
 {
@@ -81,17 +122,11 @@
     "@tiptap/react": "https://esm.sh/@tiptap/react@^2.11.5",
     "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@^2.11.5",
     "@tiptap/extension-placeholder": "https://esm.sh/@tiptap/extension-placeholder@^2.11.5",
+    "@tiptap/extension-bubble-menu": "https://esm.sh/@tiptap/extension-bubble-menu@^2.11.5",
     "@tiptap/core": "https://esm.sh/@tiptap/core@^3.15.0",
     "@tiptap/extension-bold": "https://esm.sh/@tiptap/extension-bold@^3.15.3",
     "@tiptap/extension-italic": "https://esm.sh/@tiptap/extension-italic@^3.15.3",
     "@tiptap/extension-strike": "https://esm.sh/@tiptap/extension-strike@^3.15.3",
-    "@tiptap/extension-underline": "https://esm.sh/@tiptap/extension-underline@^2.11.5",
-    "@tiptap/extension-highlight": "https://esm.sh/@tiptap/extension-highlight@^2.11.5",
-    "@tiptap/extension-text-style": "https://esm.sh/@tiptap/extension-text-style@^2.11.5",
-    "@tiptap/extension-color": "https://esm.sh/@tiptap/extension-color@^2.11.5",
-    "@tiptap/extension-font-family": "https://esm.sh/@tiptap/extension-font-family@^2.11.5",
-    "@tiptap/extension-text-align": "https://esm.sh/@tiptap/extension-text-align@^2.11.5",
-    "@tiptap/extension-link": "https://esm.sh/@tiptap/extension-link@^2.11.5",
     "@tiptap/extension-code": "https://esm.sh/@tiptap/extension-code@^3.15.3",
     "@tiptap/extension-heading": "https://esm.sh/@tiptap/extension-heading@^3.15.3",
     "@tiptap/extension-bullet-list": "https://esm.sh/@tiptap/extension-bullet-list@^3.15.3",
