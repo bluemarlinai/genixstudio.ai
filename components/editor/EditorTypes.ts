@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export type BackgroundPreset = {
@@ -5,7 +6,7 @@ export type BackgroundPreset = {
   name: string;
   class?: string;
   style?: React.CSSProperties;
-  thumbnail: React.ReactNode;
+  thumbnail: string; // 改为 string
 };
 
 export type DecorationPreset = {
@@ -13,14 +14,14 @@ export type DecorationPreset = {
   name: string;
   isVip?: boolean;
   template: string;
-  thumbnail: React.ReactNode;
+  icon: string; // 改为图标名
 };
 
 export type BrandPreset = {
   id: string;
   name: string;
   component: React.ReactNode;
-  thumbnail: React.ReactNode;
+  icon: string; // 改为图标名
 };
 
 export type SnippetPreset = {
@@ -28,7 +29,7 @@ export type SnippetPreset = {
   name: string;
   type: 'HEADER' | 'FOOTER';
   content: string;
-  thumbnail: React.ReactNode;
+  icon: string; // 改为图标名
 };
 
 export type SidebarTab = 'BACKGROUND' | 'DECORATION' | 'BRAND' | 'PRESETS';

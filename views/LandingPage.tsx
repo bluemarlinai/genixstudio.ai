@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ViewState } from '../types';
 
@@ -73,12 +74,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               className="text-sm font-semibold text-studio-sub hover:text-primary transition-colors"
             >
               官方博客
-            </button>
-            <button 
-              onClick={() => onStart('LOGIN')}
-              className="text-sm font-bold text-studio-dark hover:text-primary"
-            >
-              登录
             </button>
             <button 
               onClick={() => onStart('LOGIN')}
